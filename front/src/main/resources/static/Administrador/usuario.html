@@ -1,0 +1,2119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de Administración - Wa Sheng</title>
+<style>
+    /* Estilos generales */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        background-color: #f5f5f5;
+        color: #333;
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 250px;
+        background-color: #1a2035;
+        color: #fff;
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+        transition: all 0.3s;
+    }
+
+    .sidebar-header {
+        padding: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-header h2 {
+        font-size: 20px;
+        margin-bottom: 5px;
+    }
+
+    .sidebar-header p {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .sidebar-category {
+        padding: 15px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        font-weight: bold;
+    }
+
+    .sidebar-menu {
+        list-style: none;
+    }
+
+    .sidebar-menu li {
+        margin-bottom: 2px;
+    }
+
+    .sidebar-menu a {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+    .sidebar-menu a:hover, .sidebar-menu a.active {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+
+    .sidebar-menu .icon {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+
+    /* Contenido principal */
+    .main-content {
+        flex: 1;
+        margin-left: 250px;
+        padding: 20px;
+        transition: all 0.3s;
+    }
+
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .page-title {
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .user-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        position: relative;
+    }
+
+    .user-actions .icon {
+        font-size: 20px;
+        color: #555;
+        cursor: pointer;
+    }
+
+    .user-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: white;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        width: 200px;
+        z-index: 1000;
+        display: none;
+    }
+
+    .user-dropdown.active {
+        display: block;
+    }
+
+    .user-dropdown-item {
+        padding: 12px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .user-dropdown-item:hover {
+        background-color: #f5f5f5;
+    }
+
+    .user-dropdown-item svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* Filtros */
+    .filters {
+        background-color: #fff;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .filters-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .filters-title {
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .filters-toggle {
+        color: #3498db;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .filters-form {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-group input, .filter-group select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .filter-group .datepicker {
+        position: relative;
+    }
+
+    .filter-group .datepicker input {
+        padding-right: 30px;
+    }
+
+    .filter-group .datepicker-icon {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .autocomplete-container {
+        position: relative;
+    }
+
+    .autocomplete-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: white;
+        border: 1px solid #ddd;
+        border-top: none;
+        border-radius: 0 0 4px 4px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 10;
+        display: none;
+    }
+
+    .autocomplete-results.active {
+        display: block;
+    }
+
+    .autocomplete-item {
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+
+    .autocomplete-item:hover {
+        background-color: #f5f5f5;
+    }
+
+    /* Tabla */
+    .table-container {
+        background-color: #fff;
+        border-radius: 5px;
+        padding: 15px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        overflow-x: auto;
+        margin-bottom: 20px;
+    }
+
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .table-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        padding: 8px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s;
+    }
+
+    .btn-primary {
+        background-color: #3498db;
+        color: #fff;
+    }
+
+    .btn-secondary {
+        background-color: #f1f1f1;
+        color: #333;
+    }
+
+    .btn-danger {
+        background-color: #e74c3c;
+        color: #fff;
+    }
+
+    .btn-primary:hover {
+        background-color: #2980b9;
+    }
+
+    .btn-secondary:hover {
+        background-color: #e5e5e5;
+    }
+
+    .btn-danger:hover {
+        background-color: #c0392b;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    th {
+        font-weight: 600;
+        color: #555;
+        background-color: #f9f9f9;
+        cursor: pointer;
+    }
+
+    th:hover {
+        background-color: #f1f1f1;
+    }
+
+    th.sort-asc::after {
+        content: " ↑";
+        color: #3498db;
+    }
+
+    th.sort-desc::after {
+        content: " ↓";
+        color: #3498db;
+    }
+
+    tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    .status {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .status-registered {
+        background-color: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .status-pending {
+        background-color: #fff8e1;
+        color: #ff8f00;
+    }
+
+    .status-completed {
+        background-color: #e8f5e9;
+        color: #388e3c;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+    }
+
+    .action-btn {
+        padding: 5px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        background-color: #f1f1f1;
+        transition: background-color 0.3s;
+    }
+
+    .action-btn:hover {
+        background-color: #e5e5e5;
+    }
+
+    /* Paginación */
+    .pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    .pagination-info {
+        font-size: 14px;
+        color: #666;
+    }
+
+    .pagination-controls {
+        display: flex;
+        gap: 10px;
+    }
+
+    .pagination-btn {
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fff;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .pagination-btn.active {
+        background-color: #3498db;
+        color: #fff;
+        border-color: #3498db;
+    }
+
+    .pagination-btn:hover:not(.active) {
+        background-color: #f1f1f1;
+    }
+
+    /* Secciones específicas */
+    .section {
+        display: none;
+    }
+
+    .section.active {
+        display: block;
+    }
+
+    /* Productos */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .product-card {
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .product-image {
+        height: 150px;
+        background-color: #f1f1f1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .product-details {
+        padding: 15px;
+    }
+
+    .product-title {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .product-category {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .product-price {
+        font-weight: bold;
+        color: #3498db;
+    }
+
+    .product-availability {
+        margin-top: 10px;
+        font-size: 14px;
+    }
+
+    .available {
+        color: #27ae60;
+    }
+
+    .unavailable {
+        color: #e74c3c;
+    }
+
+    /* POS */
+    .pos-container {
+        display: flex;
+        gap: 20px;
+    }
+
+    .pos-products {
+        flex: 2;
+    }
+
+    .pos-cart {
+        flex: 1;
+    }
+
+    .pos-categories {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        overflow-x: auto;
+        padding-bottom: 10px;
+    }
+
+    .pos-category {
+        padding: 8px 15px;
+        background-color: #f1f1f1;
+        border-radius: 20px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.3s;
+    }
+
+    .pos-category.active {
+        background-color: #3498db;
+        color: #fff;
+    }
+
+    .pos-products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+    }
+
+    .pos-product {
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .pos-product:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .pos-product-name {
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+
+    .pos-product-price {
+        color: #3498db;
+        font-weight: bold;
+    }
+
+    .pos-cart-container {
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        padding: 15px;
+        position: sticky;
+        top: 20px;
+    }
+
+    .pos-cart-title {
+        font-weight: bold;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .pos-cart-items {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-bottom: 15px;
+    }
+
+    .pos-cart-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .pos-item-details {
+        flex: 1;
+    }
+
+    .pos-item-name {
+        font-weight: 500;
+    }
+
+    .pos-item-price {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .pos-item-quantity {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .pos-quantity-btn {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        border: 1px solid #ddd;
+        background-color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .pos-cart-total {
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+        font-size: 18px;
+        margin: 20px 0;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+    }
+
+    .pos-checkout-btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        background-color: #fff;
+        margin: 10% auto;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        width: 80%;
+        max-width: 600px;
+        position: relative;
+    }
+
+    .close-modal {
+        position: absolute;
+        right: 20px;
+        top: 15px;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .modal-header {
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .modal-title {
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .form-row {
+        margin-bottom: 15px;
+    }
+
+    .form-row label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+
+    .form-row input, .form-row select, .form-row textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .form-row textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .modal-footer {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    /* Toast Notifications */
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+    }
+
+    .toast {
+        background-color: #333;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 250px;
+        max-width: 350px;
+        animation: slideIn 0.3s, fadeOut 0.5s 2.5s forwards;
+    }
+
+    .toast-success {
+        background-color: #27ae60;
+    }
+
+    .toast-error {
+        background-color: #e74c3c;
+    }
+
+    .toast-warning {
+        background-color: #f39c12;
+    }
+
+    .toast-info {
+        background-color: #3498db;
+    }
+
+    .toast-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+        }
+    }
+
+    /* Confirm Dialog */
+    .confirm-dialog {
+        display: none;
+        position: fixed;
+        z-index: 1001;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .confirm-content {
+        background-color: #fff;
+        margin: 15% auto;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        width: 80%;
+        max-width: 400px;
+    }
+
+    .confirm-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .confirm-message {
+        margin-bottom: 20px;
+    }
+
+    .confirm-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .sidebar {
+            width: 70px;
+            overflow: visible;
+        }
+
+        .sidebar-header h2, .sidebar-header p, .sidebar-category, .sidebar-menu span {
+            display: none;
+        }
+
+        .main-content {
+            margin-left: 70px;
+        }
+
+        .sidebar-menu .icon {
+            margin-right: 0;
+        }
+
+        .pos-container {
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .filters-form {
+            flex-direction: column;
+        }
+
+        .filter-group {
+            min-width: 100%;
+        }
+
+        .table-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .table-actions {
+            width: 100%;
+        }
+
+        .btn {
+            flex: 1;
+            text-align: center;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .main-content {
+            padding: 10px;
+        }
+
+        .top-bar {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .user-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+    }
+</style>
+</head>
+<body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Confirm Dialog -->
+    <div class="confirm-dialog" id="confirm-dialog">
+        <div class="confirm-content">
+            <div class="confirm-title">Confirmar acción</div>
+            <div class="confirm-message" id="confirm-message"></div>
+            <div class="confirm-buttons">
+                <button class="btn btn-secondary" id="confirm-cancel">Cancelar</button>
+                <button class="btn btn-danger" id="confirm-ok">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Wa Sheng</h2>
+            <p>Panel de Administración</p>
+        </div>
+        <div class="sidebar-category">PRINCIPAL</div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="#ventas" class="active" onclick="showSection('ventas')">
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M1.5 1a.5.5 0 0 0-.5.5v3a.5.5 0 0 1-1 0v-3A1.5 1.5 0 0 1 1.5 0h3a.5.5 0 0 1 0 1h-3zM11 .5a.5.5 0 0 1 .5-.5h3A1.5 1.5 0 0 1 16 1.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 1-.5-.5zM.5 11a.5.5 0 0 1 .5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 1 0 1h-3A1.5 1.5 0 0 1 0 14.5v-3a.5.5 0 0 1 .5-.5zm15 0a.5.5 0 0 1 .5.5v3a1.5 1.5 0 0 1-1.5 1.5h-3a.5.5 0 0 1 0-1h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 1 .5-.5z"/>
+                            <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                        </svg>
+                    </div>
+                    <span>VENTAS</span>
+                </a>
+            </li>
+            <li>
+                <a href="#pos" onclick="showSection('pos')">
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                            <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                        </svg>
+                    </div>
+                    <span>POS</span>
+                </a>
+            </li>
+            <li>
+                <a href="#productos" onclick="showSection('productos')">
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z"/>
+                        </svg>
+                    </div>
+                    <span>Productos/Servicios</span>
+                </a>
+            </li>
+            <li>
+                <a href="#clientes" onclick="showSection('clientes')">
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
+                        </svg>
+                    </div>
+                    <span>Clientes</span>
+                </a>
+            </li>
+            <li>
+                <a href="#inventario" onclick="showSection('inventario')">
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4 9h8a1 1 0 1 0 0-2H4a1 1 0 1 0 0 2zm0-4h8a1 1 0 1 0 0-2H4a1 1 0 0 0 0 2zm0-4h8a1 1 0 1 0 0-2H4a1 1 0 1 0 0 2z"/>
+                        </svg>
+                    </div>
+                    <span>Inventario</span>
+                </a>
+            </li>
+            <li>
+                <a href="#reservas" onclick="showSection('reservas')">
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                            <path d="M11 7.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm-3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm-2 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm-3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/>
+                        </svg>
+                    </div>
+                    <span>Reservas</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">VENTAS</h1>
+            <div class="user-actions">
+                <div class="icon" id="notifications-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+                    </svg>
+                </div>
+                <div class="icon" id="user-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                    </svg>
+                </div>
+                <div class="user-dropdown" id="user-dropdown">
+                    <div class="user-dropdown-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                        </svg>
+                        <span>Mi Perfil</span>
+                    </div>
+                    <div class="user-dropdown-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
+                        </svg>
+                        <span>Preferencias</span>
+                    </div>
+                    <div class="user-dropdown-item" onclick="cerrarSesion()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+                            <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+                        </svg>
+                        <span>Cerrar Sesión</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Ventas -->
+        <div id="ventas" class="section active">
+            <div class="filters">
+                <div class="filters-header">
+                    <div class="filters-title">Filtros de búsqueda</div>
+                    <div class="filters-toggle" id="toggle-filters">[+ Ver más]</div>
+                </div>
+                <div class="filters-form">
+                    <div class="filter-group">
+                        <div class="datepicker">
+                            <input type="date" id="fecha-venta" placeholder="Fecha de emisión">
+                            <div class="datepicker-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <div class="autocomplete-container">
+                            <input type="text" id="cliente-venta" placeholder="Buscar cliente..." autocomplete="off">
+                            <div class="autocomplete-results" id="cliente-results"></div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <input type="text" id="numero-venta" placeholder="Número de documento (ej. F001-00001)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <button class="btn btn-primary" onclick="nuevaVenta()">Nueva Venta</button>
+                    <div class="table-actions">
+                        <button class="btn btn-secondary" onclick="exportarTabla('ventas-tabla')">Exportar</button>
+                        <button class="btn btn-secondary" onclick="toggleColumnas('ventas-tabla')">Mostrar/Ocultar columnas</button>
+                    </div>
+                </div>
+
+                <table id="ventas-tabla">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('ventas-tabla', 0)">Emisión</th>
+                            <th onclick="sortTable('ventas-tabla', 1)">Cliente</th>
+                            <th onclick="sortTable('ventas-tabla', 2)">Número</th>
+                            <th onclick="sortTable('ventas-tabla', 3)">Estado</th>
+                            <th onclick="sortTable('ventas-tabla', 4)">T.Gravado</th>
+                            <th onclick="sortTable('ventas-tabla', 5)">T.Igv</th>
+                            <th onclick="sortTable('ventas-tabla', 6)">Saldo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>29 de Abril, 2023</td>
+                            <td>Restaurant Lima S.A.C</td>
+                            <td>F001-00001</td>
+                            <td><span class="status status-registered">Registrado</span></td>
+                            <td>S/ 180.00</td>
+                            <td>S/ 32.40</td>
+                            <td>S/ 212.40</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn" title="XML" onclick="generarXML('F001-00001')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2v-1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM3.527 11.85h-.893l-.823 1.439h-.036L.943 11.85H.012l1.227 1.983L0 15.85h.861l.853-1.415h.035l.85 1.415h.908l-1.254-1.992 1.274-2.007Zm.954 3.999v-2.66h.038l.952 2.159h.516l.946-2.16h.038v2.661h.715V11.85h-.8l-1.14 2.596h-.025L4.58 11.85h-.806v3.999h.706Zm4.71-.674h1.696v.674H8.4V11.85h.791v3.325Z"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="PDF" onclick="generarPDF('F001-00001')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+                                            <path d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.697 19.697 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95 11.651 11.651 0 0 0-1.997.406 11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193 11.744 11.744 0 0 1-.51-.858 20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.876 3.876 0 0 0-.612-.053zM8.078 7.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Eliminar" onclick="confirmDelete('venta', 1, 'F001-00001')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>28 de Abril, 2023</td>
+                            <td>María Rodríguez</td>
+                            <td>B001-00015</td>
+                            <td><span class="status status-completed">Completado</span></td>
+                            <td>S/ 85.00</td>
+                            <td>S/ 15.30</td>
+                            <td>S/ 100.30</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn" title="XML" onclick="generarXML('B001-00015')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2v-1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM3.527 11.85h-.893l-.823 1.439h-.036L.943 11.85H.012l1.227 1.983L0 15.85h.861l.853-1.415h.035l.85 1.415h.908l-1.254-1.992 1.274-2.007Zm.954 3.999v-2.66h.038l.952 2.159h.516l.946-2.16h.038v2.661h.715V11.85h-.8l-1.14 2.596h-.025L4.58 11.85h-.806v3.999h.706Zm4.71-.674h1.696v.674H8.4V11.85h.791v3.325Z"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="PDF" onclick="generarPDF('B001-00015')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+                                            <path d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.697 19.697 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95 11.651 11.651 0 0 0-1.997.406 11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193 11.744 11.744 0 0 1-.51-.858 20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.876 3.876 0 0 0-.612-.053zM8.078 7.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Eliminar" onclick="confirmDelete('venta', 2, 'B001-00015')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="pagination">
+                    <div class="pagination-info">Mostrando 2 de 2 registros</div>
+                    <div class="pagination-controls">
+                        <button class="pagination-btn">Anterior</button>
+                        <button class="pagination-btn active">1</button>
+                        <button class="pagination-btn">Siguiente</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de POS -->
+        <div id="pos" class="section">
+            <div class="filters">
+                <div class="filters-header">
+                    <div class="filters-title">Terminal de Punto de Venta</div>
+                </div>
+            </div>
+
+            <div class="pos-container">
+                <div class="pos-products">
+                    <div class="pos-categories">
+                        <div class="pos-category active" data-category="todos">Todos</div>
+                        <div class="pos-category" data-category="entradas">Entradas</div>
+                        <div class="pos-category" data-category="sopas">Sopas</div>
+                        <div class="pos-category" data-category="arroces">Arroces</div>
+                        <div class="pos-category" data-category="fideos">Fideos</div>
+                        <div class="pos-category" data-category="fondos">Platos de fondo</div>
+                        <div class="pos-category" data-category="combos">Combos</div>
+                    </div>
+
+                    <div class="filter-group" style="margin-bottom: 15px;">
+                        <input type="text" placeholder="Buscar producto..." id="pos-search">
+                    </div>
+
+                    <div class="pos-products-grid" id="pos-products-grid">
+                        <div class="pos-product" data-category="arroces" onclick="addToCart('Arroz Chaufa Especial', 25.00)">
+                            <div class="pos-product-name">Arroz Chaufa Especial</div>
+                            <div class="pos-product-price">S/ 25.00</div>
+                        </div>
+                        <div class="pos-product" data-category="entradas" onclick="addToCart('Wantán Frito (8 unid)', 15.00)">
+                            <div class="pos-product-name">Wantán Frito (8 unid)</div>
+                            <div class="pos-product-price">S/ 15.00</div>
+                        </div>
+                        <div class="pos-product" data-category="sopas" onclick="addToCart('Sopa Wantán', 18.00)">
+                            <div class="pos-product-name">Sopa Wantán</div>
+                            <div class="pos-product-price">S/ 18.00</div>
+                        </div>
+                        <div class="pos-product" data-category="fideos" onclick="addToCart('Tallarín Saltado Especial', 26.00)">
+                            <div class="pos-product-name">Tallarín Saltado Especial</div>
+                            <div class="pos-product-price">S/ 26.00</div>
+                        </div>
+                        <div class="pos-product" data-category="fondos" onclick="addToCart('Pollo Tipakay', 28.00)">
+                            <div class="pos-product-name">Pollo Tipakay</div>
+                            <div class="pos-product-price">S/ 28.00</div>
+                        </div>
+                        <div class="pos-product" data-category="fondos" onclick="addToCart('Lomo Saltado', 32.00)">
+                            <div class="pos-product-name">Lomo Saltado</div>
+                            <div class="pos-product-price">S/ 32.00</div>
+                        </div>
+                        <div class="pos-product" data-category="fideos" onclick="addToCart('Aeropuerto', 35.00)">
+                            <div class="pos-product-name">Aeropuerto</div>
+                            <div class="pos-product-price">S/ 35.00</div>
+                        </div>
+                        <div class="pos-product" data-category="combos" onclick="addToCart('Combo Familiar (4 personas)', 85.00)">
+                            <div class="pos-product-name">Combo Familiar (4 personas)</div>
+                            <div class="pos-product-price">S/ 85.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pos-cart">
+                    <div class="pos-cart-container">
+                        <div class="pos-cart-title">Carrito de Compra</div>
+                        <div class="pos-cart-items" id="cart-items">
+                            <!-- Los items se agregarán dinámicamente -->
+                        </div>
+                        <div class="pos-cart-total">
+                            <span>Total:</span>
+                            <span id="cart-total">S/ 0.00</span>
+                        </div>
+                        <button class="btn btn-primary pos-checkout-btn" onclick="procesarVenta()">Procesar Venta</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Productos/Servicios -->
+        <div id="productos" class="section">
+            <div class="filters">
+                <div class="filters-header">
+                    <div class="filters-title">Filtros de búsqueda</div>
+                    <div class="filters-toggle">[+ Ver más]</div>
+                </div>
+                <div class="filters-form">
+                    <div class="filter-group">
+                        <input type="text" id="producto-nombre" placeholder="Nombre del producto">
+                    </div>
+                    <div class="filter-group">
+                        <select id="producto-categoria">
+                            <option value="">Todas las categorías</option>
+                            <option value="entradas">Entradas</option>
+                            <option value="sopas">Sopas</option>
+                            <option value="arroces">Arroces</option>
+                            <option value="fideos">Fideos</option>
+                            <option value="fondos">Platos de fondo</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="producto-estado">
+                            <option value="">Todos los estados</option>
+                            <option value="disponible">Disponible</option>
+                            <option value="no-disponible">No disponible</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <button class="btn btn-primary" onclick="nuevoProducto()">Nuevo Producto</button>
+                    <div class="table-actions">
+                        <button class="btn btn-secondary" onclick="exportarProductos()">Exportar</button>
+                        <button class="btn btn-secondary">Mostrar/Ocultar columnas</button>
+                    </div>
+                </div>
+
+                <div class="product-grid" id="product-grid">
+                    <div class="product-card">
+                        <div class="product-image">Imagen</div>
+                        <div class="product-details">
+                            <div class="product-title">Arroz Chaufa Especial</div>
+                            <div class="product-category">Categoría: Arroces</div>
+                            <div class="product-price">S/ 25.00</div>
+                            <div class="product-availability available">Disponible</div>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-image">Imagen</div>
+                        <div class="product-details">
+                            <div class="product-title">Wantán Frito (8 unid)</div>
+                            <div class="product-category">Categoría: Entradas</div>
+                            <div class="product-price">S/ 15.00</div>
+                            <div class="product-availability available">Disponible</div>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-image">Imagen</div>
+                        <div class="product-details">
+                            <div class="product-title">Sopa Wantán</div>
+                            <div class="product-category">Categoría: Sopas</div>
+                            <div class="product-price">S/ 18.00</div>
+                            <div class="product-availability available">Disponible</div>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-image">Imagen</div>
+                        <div class="product-details">
+                            <div class="product-title">Tallarín Saltado Especial</div>
+                            <div class="product-category">Categoría: Fideos</div>
+                            <div class="product-price">S/ 26.00</div>
+                            <div class="product-availability unavailable">No disponible</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pagination">
+                    <div class="pagination-info">Mostrando 4 de 24 productos</div>
+                    <div class="pagination-controls">
+                        <button class="pagination-btn">Anterior</button>
+                        <button class="pagination-btn active">1</button>
+                        <button class="pagination-btn">2</button>
+                        <button class="pagination-btn">3</button>
+                        <button class="pagination-btn">Siguiente</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Clientes -->
+        <div id="clientes" class="section">
+            <div class="filters">
+                <div class="filters-header">
+                    <div class="filters-title">Filtros de búsqueda</div>
+                    <div class="filters-toggle">[+ Ver más]</div>
+                </div>
+                <div class="filters-form">
+                    <div class="filter-group">
+                        <input type="text" id="cliente-nombre" placeholder="Nombre o razón social">
+                    </div>
+                    <div class="filter-group">
+                        <input type="text" id="cliente-documento" placeholder="RUC/DNI">
+                    </div>
+                    <div class="filter-group">
+                        <input type="text" id="cliente-telefono" placeholder="Teléfono">
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <button class="btn btn-primary" onclick="nuevoCliente()">Nuevo Cliente</button>
+                    <div class="table-actions">
+                        <button class="btn btn-secondary" onclick="exportarTabla('clientes-tabla')">Exportar</button>
+                        <button class="btn btn-secondary">Mostrar/Ocultar columnas</button>
+                    </div>
+                </div>
+
+                <table id="clientes-tabla">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('clientes-tabla', 0)">Nombre/Razón Social</th>
+                            <th onclick="sortTable('clientes-tabla', 1)">RUC/DNI</th>
+                            <th onclick="sortTable('clientes-tabla', 2)">Teléfono</th>
+                            <th onclick="sortTable('clientes-tabla', 3)">Correo Electrónico</th>
+                            <th onclick="sortTable('clientes-tabla', 4)">Dirección</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Restaurant Lima S.A.C</td>
+                            <td>20123456789</td>
+                            <td>987654321</td>
+                            <td>contacto@restaurantlima.com</td>
+                            <td>Av. Principal 123, Lima</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn" title="Editar" onclick="editarCliente(1)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Eliminar" onclick="confirmDelete('cliente', 1, 'Restaurant Lima S.A.C')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Juan Pérez</td>
+                            <td>45678912</td>
+                            <td>912345678</td>
+                            <td>juan.perez@gmail.com</td>
+                            <td>Jr. Los Olivos 456, Lima</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn" title="Editar" onclick="editarCliente(2)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Eliminar" onclick="confirmDelete('cliente', 2, 'Juan Pérez')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="pagination">
+                    <div class="pagination-info">Mostrando 2 de 2 clientes</div>
+                    <div class="pagination-controls">
+                        <button class="pagination-btn">Anterior</button>
+                        <button class="pagination-btn active">1</button>
+                        <button class="pagination-btn">Siguiente</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Inventario -->
+        <div id="inventario" class="section">
+            <div class="filters">
+                <div class="filters-header">
+                    <div class="filters-title">Filtros de búsqueda</div>
+                    <div class="filters-toggle">[+ Ver más]</div>
+                </div>
+                <div class="filters-form">
+                    <div class="filter-group">
+                        <input type="text" id="ingrediente-nombre" placeholder="Nombre del ingrediente">
+                    </div>
+                    <div class="filter-group">
+                        <select id="ingrediente-estado">
+                            <option value="">Todos los estados</option>
+                            <option value="suficiente">Stock suficiente</option>
+                            <option value="bajo">Stock bajo</option>
+                            <option value="sin">Sin stock</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <button class="btn btn-primary" onclick="nuevoIngrediente()">Nuevo Ingrediente</button>
+                    <div class="table-actions">
+                        <button class="btn btn-secondary" onclick="exportarTabla('inventario-tabla')">Exportar</button>
+                        <button class="btn btn-secondary">Mostrar/Ocultar columnas</button>
+                    </div>
+                </div>
+
+                <table id="inventario-tabla">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('inventario-tabla', 0)">Ingrediente</th>
+                            <th onclick="sortTable('inventario-tabla', 1)">Categoría</th>
+                            <th onclick="sortTable('inventario-tabla', 2)">Stock Actual</th>
+                            <th onclick="sortTable('inventario-tabla', 3)">Stock Mínimo</th>
+                            <th onclick="sortTable('inventario-tabla', 4)">Unidad</th>
+                            <th onclick="sortTable('inventario-tabla', 5)">Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Arroz</td>
+                            <td>Granos</td>
+                            <td>25</td>
+                            <td>10</td>
+                            <td>kg</td>
+                            <td><span class="status status-registered">Stock suficiente</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn" title="Editar" onclick="editarIngrediente(1)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Eliminar" onclick="confirmDelete('ingrediente', 1, 'Arroz')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Pollo</td>
+                            <td>Carnes</td>
+                            <td>8</td>
+                            <td>15</td>
+                            <td>kg</td>
+                            <td><span class="status status-pending">Stock bajo</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn" title="Editar" onclick="editarIngrediente(2)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Eliminar" onclick="confirmDelete('ingrediente', 2, 'Pollo')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="pagination">
+                    <div class="pagination-info">Mostrando 2 de 15 ingredientes</div>
+                    <div class="pagination-controls">
+                        <button class="pagination-btn">Anterior</button>
+                        <button class="pagination-btn active">1</button>
+                        <button class="pagination-btn">2</button>
+                        <button class="pagination-btn">3</button>
+                        <button class="pagination-btn">Siguiente</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Reservas -->
+        <div id="reservas" class="section">
+            <div class="filters">
+                <div class="filters-header">
+                    <div class="filters-title">Filtros de búsqueda</div>
+                    <div class="filters-toggle">[+ Ver más]</div>
+                </div>
+                <div class="filters-form">
+                    <div class="filter-group">
+                        <input type="date" id="reserva-fecha" placeholder="Fecha">
+                    </div>
+                    <div class="filter-group">
+                        <input type="text" id="reserva-cliente" placeholder="Cliente">
+                    </div>
+                    <div class="filter-group">
+                        <select id="reserva-metodo">
+                            <option value="">Todos los métodos</option>
+                            <option value="local">Comer en local</option>
+                            <option value="llevar">Para llevar</option>
+                            <option value="delivery">Delivery</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <button class="btn btn-primary" onclick="nuevaReserva()">Nueva Reserva</button>
+                    <div class="table-actions">
+                        <button class="btn btn-secondary" onclick="exportarTabla('reservas-tabla')">Exportar</button>
+                        <button class="btn btn-secondary">Mostrar/Ocultar columnas</button>
+                    </div>
+                </div>
+
+                <table id="reservas-tabla">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('reservas-tabla', 0)">Cliente</th>
+                            <th onclick="sortTable('reservas-tabla', 1)">Fecha y Hora</th>
+                            <th onclick="sortTable('reservas-tabla', 2)">Ubicación</th>
+                            <th onclick="sortTable('reservas-tabla', 3)">Personas</th>
+                            <th onclick="sortTable('reservas-tabla', 4)">Pedido</th>
+                            <th onclick="sortTable('reservas-tabla', 5)">Método</th>
+                            <th onclick="sortTable('reservas-tabla', 6)">Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Juan Pérez</td>
+                            <td>29/04/2023 19:30</td>
+                            <td>Mesa 3</td>
+                            <td>4</td>
+                            <td>Arroz Chaufa Especial (2), Wantán Frito (1)</td>
+                            <td>Comer en local</td>
+                            <td><span class="status status-registered">Confirmada</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn" title="Editar" onclick="editarReserva(1)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                                        </svg>
+                                    </button>
+                                    <button class="action-btn" title="Eliminar" onclick="confirmDelete('reserva', 1, 'Reserva de Juan Pérez')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="pagination">
+                    <div class="pagination-info">Mostrando 1 de 1 reservas</div>
+                    <div class="pagination-controls">
+                        <button class="pagination-btn">Anterior</button>
+                        <button class="pagination-btn active">1</button>
+                        <button class="pagination-btn">Siguiente</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let cart = [];
+        let currentDeleteItem = { type: '', id: 0, name: '' };
+        const clientes = [
+            { id: 1, nombre: 'Restaurant Lima S.A.C', documento: '20123456789' },
+            { id: 2, nombre: 'Juan Pérez', documento: '45678912' },
+            { id: 3, nombre: 'María Rodríguez', documento: '10987654' },
+            { id: 4, nombre: 'Carlos Gómez', documento: '87654321' },
+            { id: 5, nombre: 'Ana Torres', documento: '76543210' }
+        ];
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar menú
+            document.querySelectorAll('.sidebar-menu a').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    document.querySelectorAll('.sidebar-menu a').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Inicializar dropdown de usuario
+            document.getElementById('user-icon').addEventListener('click', function() {
+                document.getElementById('user-dropdown').classList.toggle('active');
+            });
+
+            // Cerrar dropdown al hacer clic fuera
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#user-icon') && !e.target.closest('#user-dropdown')) {
+                    document.getElementById('user-dropdown').classList.remove('active');
+                }
+            });
+
+            // Inicializar filtros
+            document.getElementById('toggle-filters').addEventListener('click', function() {
+                const filtersForm = this.closest('.filters').querySelector('.filters-form');
+                if (filtersForm.style.display === 'none') {
+                    filtersForm.style.display = 'flex';
+                    this.textContent = '[- Ocultar]';
+                } else {
+                    filtersForm.style.display = 'none';
+                    this.textContent = '[+ Ver más]';
+                }
+            });
+
+            // Inicializar autocompletado de clientes
+            const clienteInput = document.getElementById('cliente-venta');
+            const clienteResults = document.getElementById('cliente-results');
+            
+            if (clienteInput) {
+                clienteInput.addEventListener('input', function() {
+                    const value = this.value.toLowerCase();
+                    if (value.length < 2) {
+                        clienteResults.classList.remove('active');
+                        return;
+                    }
+                    
+                    const filteredClientes = clientes.filter(cliente => 
+                        cliente.nombre.toLowerCase().includes(value) || 
+                        cliente.documento.includes(value)
+                    );
+                    
+                    if (filteredClientes.length > 0) {
+                        clienteResults.innerHTML = '';
+                        filteredClientes.forEach(cliente => {
+                            const item = document.createElement('div');
+                            item.className = 'autocomplete-item';
+                            item.textContent = `${cliente.nombre} (${cliente.documento})`;
+                            item.addEventListener('click', function() {
+                                clienteInput.value = cliente.nombre;
+                                clienteResults.classList.remove('active');
+                            });
+                            clienteResults.appendChild(item);
+                        });
+                        clienteResults.classList.add('active');
+                    } else {
+                        clienteResults.classList.remove('active');
+                    }
+                });
+                
+                // Cerrar autocompletado al hacer clic fuera
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.autocomplete-container')) {
+                        clienteResults.classList.remove('active');
+                    }
+                });
+            }
+
+            // Inicializar filtro de productos en POS
+            const posSearch = document.getElementById('pos-search');
+            if (posSearch) {
+                posSearch.addEventListener('input', function() {
+                    const value = this.value.toLowerCase();
+                    document.querySelectorAll('.pos-product').forEach(product => {
+                        const name = product.querySelector('.pos-product-name').textContent.toLowerCase();
+                        if (name.includes(value)) {
+                            product.style.display = 'block';
+                        } else {
+                            product.style.display = 'none';
+                        }
+                    });
+                });
+            }
+
+            // Inicializar categorías de POS
+            document.querySelectorAll('.pos-category').forEach(category => {
+                category.addEventListener('click', function() {
+                    document.querySelectorAll('.pos-category').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const categoryValue = this.getAttribute('data-category');
+                    document.querySelectorAll('.pos-product').forEach(product => {
+                        if (categoryValue === 'todos' || product.getAttribute('data-category') === categoryValue) {
+                            product.style.display = 'block';
+                        } else {
+                            product.style.display = 'none';
+                        }
+                    });
+                });
+            });
+
+            // Inicializar confirmación de eliminación
+            document.getElementById('confirm-cancel').addEventListener('click', function() {
+                document.getElementById('confirm-dialog').style.display = 'none';
+            });
+
+            document.getElementById('confirm-ok').addEventListener('click', function() {
+                document.getElementById('confirm-dialog').style.display = 'none';
+                deleteItem(currentDeleteItem.type, currentDeleteItem.id);
+            });
+
+            // Inicializar filtros de tablas
+            initTableFilters();
+        });
+
+        // Funciones de navegación
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active');
+            document.querySelector('.page-title').textContent = sectionId.toUpperCase();
+        }
+
+        // Funciones de carrito
+        function addToCart(name, price) {
+            const existingItem = cart.find(item => item.name === name);
+            
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({
+                    name: name,
+                    price: price,
+                    quantity: 1
+                });
+            }
+            
+            updateCart();
+            showToast(`${name} agregado al carrito`, 'success');
+        }
+
+        function updateCart() {
+            const cartItems = document.getElementById('cart-items');
+            const cartTotal = document.getElementById('cart-total');
+            
+            cartItems.innerHTML = '';
+            let total = 0;
+            
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                
+                const cartItem = document.createElement('div');
+                cartItem.className = 'pos-cart-item';
+                cartItem.innerHTML = `
+                    <div class="pos-item-details">
+                        <div class="pos-item-name">${item.name}</div>
+                        <div class="pos-item-price">S/ ${item.price.toFixed(2)} x ${item.quantity}</div>
+                    </div>
+                    <div class="pos-item-quantity">
+                        <button class="pos-quantity-btn" onclick="decreaseQuantity(${index})">-</button>
+                        <span>${item.quantity}</span>
+                        <button class="pos-quantity-btn" onclick="increaseQuantity(${index})">+</button>
+                    </div>
+                `;
+                
+                cartItems.appendChild(cartItem);
+            });
+            
+            cartTotal.textContent = `S/ ${total.toFixed(2)}`;
+        }
+
+        function increaseQuantity(index) {
+            cart[index].quantity++;
+            updateCart();
+        }
+
+        function decreaseQuantity(index) {
+            if (cart[index].quantity > 1) {
+                cart[index].quantity--;
+            } else {
+                cart.splice(index, 1);
+            }
+            updateCart();
+        }
+
+        function procesarVenta() {
+            if (cart.length === 0) {
+                showToast('El carrito está vacío', 'error');
+                return;
+            }
+            
+            showToast('Venta procesada correctamente', 'success');
+            cart = [];
+            updateCart();
+        }
+
+        // Funciones de notificaciones
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                ${message}
+                <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Auto-eliminar después de 3 segundos
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Funciones de confirmación
+        function confirmDelete(type, id, name) {
+            currentDeleteItem = { type, id, name };
+            
+            const confirmMessage = document.getElementById('confirm-message');
+            confirmMessage.textContent = `¿Está seguro que desea eliminar ${type === 'venta' ? 'la venta' : type === 'cliente' ? 'el cliente' : type === 'ingrediente' ? 'el ingrediente' : 'la reserva'} "${name}"?`;
+            
+            document.getElementById('confirm-dialog').style.display = 'block';
+        }
+
+        function deleteItem(type, id) {
+            // Aquí iría la lógica para eliminar el elemento de la base de datos
+            // Por ahora solo mostramos un mensaje
+            showToast(`${type === 'venta' ? 'Venta' : type === 'cliente' ? 'Cliente' : type === 'ingrediente' ? 'Ingrediente' : 'Reserva'} eliminado correctamente`, 'success');
+            
+            // Simulamos la eliminación de la fila
+            const tables = {
+                'venta': 'ventas-tabla',
+                'cliente': 'clientes-tabla',
+                'ingrediente': 'inventario-tabla',
+                'reserva': 'reservas-tabla'
+            };
+            
+            const table = document.getElementById(tables[type]);
+            if (table) {
+                const rows = table.querySelectorAll('tbody tr');
+                if (rows.length > id - 1) {
+                    rows[id - 1].remove();
+                }
+            }
+        }
+
+        // Funciones de ordenamiento de tablas
+        function sortTable(tableId, columnIndex) {
+            const table = document.getElementById(tableId);
+            const header = table.querySelector(`th:nth-child(${columnIndex + 1})`);
+            const isAsc = header.classList.contains('sort-asc');
+            
+            // Limpiar clases de ordenamiento
+            table.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+            
+            // Establecer nueva clase de ordenamiento
+            header.classList.add(isAsc ? 'sort-desc' : 'sort-asc');
+            
+            // Ordenar filas
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            rows.sort((a, b) => {
+                const aValue = a.querySelector(`td:nth-child(${columnIndex + 1})`).textContent.trim();
+                const bValue = b.querySelector(`td:nth-child(${columnIndex + 1})`).textContent.trim();
+                
+                // Detectar si es un número
+                if (!isNaN(parseFloat(aValue)) && !isNaN(parseFloat(bValue))) {
+                    return isAsc ? parseFloat(aValue) - parseFloat(bValue) : parseFloat(bValue) - parseFloat(aValue);
+                }
+                
+                // Ordenar como texto
+                return isAsc ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+            });
+            
+            // Reordenar filas en la tabla
+            const tbody = table.querySelector('tbody');
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // Funciones de exportación
+        function exportarTabla(tableId) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+            
+            // Crear CSV
+            let csv = [];
+            
+            // Encabezados
+            const headers = [];
+            table.querySelectorAll('th').forEach(th => {
+                headers.push(th.textContent.trim());
+            });
+            csv.push(headers.join(','));
+            
+            // Filas
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                const row = [];
+                tr.querySelectorAll('td').forEach((td, index) => {
+                    // Excluir la columna de acciones
+                    if (index < headers.length - 1) {
+                        let text = td.textContent.trim();
+                        // Si hay un span de estado, obtener su texto
+                        const status = td.querySelector('.status');
+                        if (status) {
+                            text = status.textContent.trim();
+                        }
+                        row.push(`"${text}"`);
+                    }
+                });
+                csv.push(row.join(','));
+            });
+            
+            // Descargar CSV
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `${tableId}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast('Tabla exportada correctamente', 'success');
+        }
+
+        function exportarProductos() {
+            // Crear CSV para productos
+            let csv = ['Nombre,Categoría,Precio,Disponibilidad'];
+            
+            document.querySelectorAll('.product-card').forEach(card => {
+                const nombre = card.querySelector('.product-title').textContent.trim();
+                const categoria = card.querySelector('.product-category').textContent.replace('Categoría: ', '').trim();
+                const precio = card.querySelector('.product-price').textContent.replace('S/ ', '').trim();
+                const disponibilidad = card.querySelector('.product-availability').textContent.trim();
+                
+                csv.push(`"${nombre}","${categoria}","${precio}","${disponibilidad}"`);
+            });
+            
+            // Descargar CSV
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'productos.csv');
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast('Productos exportados correctamente', 'success');
+        }
+
+        // Funciones de filtrado de tablas
+        function initTableFilters() {
+            // Filtro de ventas
+            const fechaVenta = document.getElementById('fecha-venta');
+            const clienteVenta = document.getElementById('cliente-venta');
+            const numeroVenta = document.getElementById('numero-venta');
+            
+            if (fechaVenta && clienteVenta && numeroVenta) {
+                const filterVentas = () => {
+                    const fecha = fechaVenta.value;
+                    const cliente = clienteVenta.value.toLowerCase();
+                    const numero = numeroVenta.value.toLowerCase();
+                    
+                    document.querySelectorAll('#ventas-tabla tbody tr').forEach(row => {
+                        const fechaCell = row.cells[0].textContent.toLowerCase();
+                        const clienteCell = row.cells[1].textContent.toLowerCase();
+                        const numeroCell = row.cells[2].textContent.toLowerCase();
+                        
+                        const fechaMatch = !fecha || fechaCell.includes(fecha);
+                        const clienteMatch = !cliente || clienteCell.includes(cliente);
+                        const numeroMatch = !numero || numeroCell.includes(numero);
+                        
+                        if (fechaMatch && clienteMatch && numeroMatch) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                };
+                
+                fechaVenta.addEventListener('input', filterVentas);
+                clienteVenta.addEventListener('input', filterVentas);
+                numeroVenta.addEventListener('input', filterVentas);
+            }
+            
+            // Filtro de productos
+            const productoNombre = document.getElementById('producto-nombre');
+            const productoCategoria = document.getElementById('producto-categoria');
+            const productoEstado = document.getElementById('producto-estado');
+            
+            if (productoNombre && productoCategoria && productoEstado) {
+                const filterProductos = () => {
+                    const nombre = productoNombre.value.toLowerCase();
+                    const categoria = productoCategoria.value.toLowerCase();
+                    const estado = productoEstado.value.toLowerCase();
+                    
+                    document.querySelectorAll('.product-card').forEach(card => {
+                        const nombreText = card.querySelector('.product-title').textContent.toLowerCase();
+                        const categoriaText = card.querySelector('.product-category').textContent.toLowerCase();
+                        const estadoText = card.querySelector('.product-availability').textContent.toLowerCase();
+                        
+                        const nombreMatch = !nombre || nombreText.includes(nombre);
+                        const categoriaMatch = !categoria || categoriaText.includes(categoria);
+                        const estadoMatch = !estado || (estado === 'disponible' && estadoText.includes('disponible')) || 
+                                           (estado === 'no-disponible' && estadoText.includes('no disponible'));
+                        
+                        if (nombreMatch && categoriaMatch && estadoMatch) {
+                            card.style.display = '';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                };
+                
+                productoNombre.addEventListener('input', filterProductos);
+                productoCategoria.addEventListener('change', filterProductos);
+                productoEstado.addEventListener('change', filterProductos);
+            }
+        }
+
+        // Funciones de toggle de columnas
+        function toggleColumnas(tableId) {
+            // Implementación pendiente
+            showToast('Funcionalidad en desarrollo', 'info');
+        }
+
+        // Funciones de generación de documentos
+        function generarXML(numero) {
+            showToast(`Generando XML para ${numero}`, 'info');
+            // Simulamos la descarga
+            setTimeout(() => {
+                showToast(`XML para ${numero} generado correctamente`, 'success');
+            }, 1000);
+        }
+
+        function generarPDF(numero) {
+            showToast(`Generando PDF para ${numero}`, 'info');
+            // Simulamos la descarga
+            setTimeout(() => {
+                showToast(`PDF para ${numero} generado correctamente`, 'success');
+            }, 1000);
+        }
+
+        // Funciones de formularios
+        function nuevaVenta() {
+            showToast('Creando nueva venta...', 'info');
+            // Aquí iría la lógica para mostrar el formulario de nueva venta
+        }
+
+        function nuevoProducto() {
+            showToast('Creando nuevo producto...', 'info');
+            // Aquí iría la lógica para mostrar el formulario de nuevo producto
+        }
+
+        function nuevoCliente() {
+            showToast('Creando nuevo cliente...', 'info');
+            // Aquí iría la lógica para mostrar el formulario de nuevo cliente
+        }
+
+        function nuevoIngrediente() {
+            showToast('Creando nuevo ingrediente...', 'info');
+            // Aquí iría la lógica para mostrar el formulario de nuevo ingrediente
+        }
+
+        function nuevaReserva() {
+            showToast('Creando nueva reserva...', 'info');
+            // Aquí iría la lógica para mostrar el formulario de nueva reserva
+        }
+
+        function editarCliente(id) {
+            showToast(`Editando cliente #${id}...`, 'info');
+            // Aquí iría la lógica para mostrar el formulario de edición de cliente
+        }
+
+        function editarIngrediente(id) {
+            showToast(`Editando ingrediente #${id}...`, 'info');
+            // Aquí iría la lógica para mostrar el formulario de edición de ingrediente
+        }
+
+        function editarReserva(id) {
+            showToast(`Editando reserva #${id}...`, 'info');
+            // Aquí iría la lógica para mostrar el formulario de edición de reserva
+        }
+
+        // Función de cerrar sesión
+        function cerrarSesion() {
+            showToast('Cerrando sesión...', 'info');
+            
+            // Simulamos el cierre de sesión
+            setTimeout(() => {
+                window.location.href = 'login.html'; // Redirigir a la página de login
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

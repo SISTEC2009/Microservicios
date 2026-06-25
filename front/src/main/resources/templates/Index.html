@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+	<head>
+	<meta charset="UTF-8">
+	<title>Insert title here</title>
+	<link href="css/styles.css" rel="stylesheet" type="text/css" />
+	</head>
+<body>
+    <!-- Navegación -->
+    <nav id="navbar">
+<!--  <a href="#" class="logo">WHA SHENG</a> --> 
+		<img src="imagenes/icono.jpg" alt="logo web" width="100" height="100">
+        <div style="background-image: url('imagenes/icono.jpg');"></div>
+        <ul class="nav-links">
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="Contacto/contacto.html">Contacto</a></li>
+            <li><a href="menus/login">Login</a></li>
+        </ul>
+        <div class="hamburger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+        </div>
+    </nav>
+
+    <!-- Hero Section (Página Principal) -->
+    <section id="inicio" class="hero">
+        <div class="hero-slide active" style="background-image: url('imagenes/inicio.jpg');"></div>
+        <div class="hero-slide" style="background-image: url('imagenes/logo.jpg');"></div>
+        <div class="hero-slide" style="background-image: url('imagenes/logo2.jpg');"></div>
+        <div class="hero-overlay">
+            <h1 class="hero-title">Experimenta la Perfecta Fusión de la Cocina China y Peruana</h1>
+            <p class="hero-subtitle">Donde las tradiciones ancestrales se encuentran con sabores contemporáneos</p>
+			<div class="hero-buttons">
+			    <a href="/pedidos/listar" class="btn btn-primary">Ordenar Ahora</a>
+			    <a href="/reservas/listar" class="btn btn-secondary">Reservar Mesa</a>
+			</div>
+        </div>
+    </section>
+
+    <!-- Historia Section (Nuestra Historia) -->
+    <section id="historia" class="historia">
+        <div class="container">
+            <h2 class="section-title">Nuestra Historia</h2>
+            <p class="historia-content">
+                WHA SHENG nace de la pasión por unir dos culturas milenarias: la cocina china y la peruana. 
+                Nuestros chefs reinventan recetas tradicionales con un toque contemporáneo, para brindarte 
+                una experiencia gastronómica inolvidable.
+            </p>
+        </div>
+    </section>
+
+    <!-- Menú Section (Menú Destacado) -->
+    <section id="menu" class="menu">
+        <div class="container">
+            <h2 class="section-title">Menú Destacado</h2>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <img src="https://images.unsplash.com/photo-1563245372-f21724e3856d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80" alt="Lomo Saltado">
+                    <div class="menu-item-content">
+                        <h3 class="menu-item-title">Lomo Saltado Oriental</h3>
+                        <p class="menu-item-description">Deliciosa fusión de lomo saltado peruano con toques de soja y jengibre al estilo chino.</p>
+                        <p class="menu-item-price">S/. 42.00</p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="https://images.unsplash.com/photo-1617692855027-33b14f061079?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Dim Sum">
+                    <div class="menu-item-content">
+                        <h3 class="menu-item-title">Dim Sum de Ají Amarillo</h3>
+                        <p class="menu-item-description">Tradicionales dim sum rellenos con una mezcla de cerdo, camarones y ají amarillo peruano.</p>
+                        <p class="menu-item-price">S/. 36.00</p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="https://images.unsplash.com/photo-1626804475297-41608ea09aeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Ceviche">
+                    <div class="menu-item-content">
+                        <h3 class="menu-item-title">Ceviche Mandarín</h3>
+                        <p class="menu-item-description">Fresco ceviche de pescado blanco marinado con limón, naranja china y especias orientales.</p>
+                        <p class="menu-item-price">S/. 48.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ubicación Section (Ubícanos) -->
+    <section id="ubicacion" class="ubicacion">
+        <div class="container">
+            <h2 class="section-title">Ubícanos</h2>
+            <div class="ubicacion-container">
+                <div class="ubicacion-info">
+                    <h3>Dirección</h3>
+                    <p>Jr. Santa Rosa 132 Surquillo, Lima, Perú</p>
+                    <h3>Horario</h3>
+                    <p>Lunes a Viernes: 12:00 - 23:00</p>
+                    <p>Sábados y Domingos: 12:00 - 00:00</p>
+                    <h3>Contacto</h3>
+                    <p>Teléfono: +51 1 234 5678</p>
+                    <p>Email: info@washeng.pe</p>
+                </div>
+                <div class="ubicacion-map">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3901.6641880464!2d-77.01!3d-12.09!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTLCsDA1JzI0LjAiUyA3N8KwMDAnMzYuMCJX!5e0!3m2!1ses!2spe!4v1630000000000!5m2!1ses!2spe" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (Pie de Página) -->
+    <footer id="contacto">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3 class="footer-title">WHA SHENG</h3>
+                <div class="footer-content">
+                    <p>Fusión perfecta de sabores chinos y <br>
+                         peruanos en cada plato.</p>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Síguenos</h3>
+                <div class="social-icons">
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-facebook-f"></i> Facebook
+                    </a>
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-instagram"></i> Instagram
+                    </a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Enlaces</h3>
+                <div class="footer-links">
+                    <a href="#">Política de Privacidad</a>
+                    <a href="#">Términos y Condiciones</a>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2025 SISTEC PERU Todos los derechos reservados.</p>
+        </div>
+    </footer>
+    
+<script src="script.js"></script>
+</body>
+</html>

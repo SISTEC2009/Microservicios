@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{layout/base :: head}"></div>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.3/dist/sweetalert2.min.css" rel="stylesheet">
+<style>
+  /* Centra todas las celdas excepto la primera (Producto) */
+  #tabla-editar-detalle td:not(:first-child),
+  #tabla-editar-detalle th:not(:first-child) {
+    text-align: center;
+    vertical-align: middle;
+  }
+  
+  /* Opcional: fija el ancho de columnas para mejor orden */
+  #tabla-editar-detalle th,
+  #tabla-editar-detalle td {
+    white-space: nowrap;
+  }
+</style>
+<body>
+
+
+	<div th:replace="~{layout/base :: header}"></div>
+
+	<div class="main-content">
+		<!-- Sección de Clientes -->
+		<div id="clientes">
+			<h2 class="section-title">Gestión de Pedidos</h2>
+			
+			<div class="filters">
+				<div class="filters-header">
+					<div class="filters-title">Filtros de búsqueda</div>
+					<div class="filters-toggle">[+ Ver más]</div>
+				</div>
+				<div class="filters-form">
+					<div class="filter-group">
+						<input type="text" class="solo-letras" id="cliente-nombre"
+							placeholder="Nombre del Cliente">
+					</div>
+					<div class="filter-group">
+						<input type="text" class="solo-numeros" id="cliente-documento"
+							placeholder="Fecha de pedido">
+					</div>
+					<div class="filter-group">
+						<input type="text" class="solo-numeros" id="cliente-telefono"
+							placeholder="Teléfono">
+					</div>
+				</div>
+			</div>
+
+			<div class="table-container">
+				<div class="table-header">
+					<div class="acciones">
+
+					</div>
+					<div class="table-actions">
+						<button class="btn btn-secondary"
+							onclick="exportarTabla('clientes-tabla')">Exportar</button>
+						<button class="btn btn-secondary">Mostrar/Ocultar
+							columnas</button>
+					</div>
+				</div>
+
+				<table id="clientes-tabla" class="styled-table">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Nombres</th>
+							<th>Cantidad Productos</th>
+							<th>Monto total</th>
+							<th>Tipo Pedido</th>
+							<th>Fecha Registro</th>
+							<th class="estado">Estado</th>
+							<th>Acciones</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="temp : ${pedidos}">
+							<td th:text="${temp.idPedido}"></td>
+							<td th:text="${temp.nombrePedido}"></td>
+							<td th:text="${temp.cantidadPedido}"></td>
+							<td th:text="${temp.totalPedido}"></td>
+							<td th:text="${temp.tipoPedido}"></td>
+							<td th:text="${temp.fechaPedido}"></td>
+							<td th:text="${temp.estadoPedido}"></td>
+							<td class="editar-eliminar-td">
+								<!-- Botón Detalle -->
+								<button class="action-btn"
+									th:onclick="'verDetallePedido(' + ${temp.idPedido} + ')'">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+										fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+    								<path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8z" />
+    								
+  									</svg>
+								</button>
+
+								<button class="action-btn" th:onclick="editarPedido([[${temp.idPedido}]])">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+										fill="currentColor" viewBox="0 0 16 16">			                                             
+			    					<path
+											d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+			     					</svg>
+								</button>
+								
+								<button class="action-btn" th:onclick="rechazarPedido([[${temp.idPedido}]])">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+											fill="currentColor" viewBox="0 0 16 16">
+					 					<path
+												d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+										<path fill-rule="evenodd"
+												d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+										</svg>
+								</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<div class="pagination">
+					<div class="pagination-info">Mostrando 2 de 2 clientes</div>
+					<div class="pagination-controls">
+						<button class="pagination-btn">Anterior</button>
+						<button class="pagination-btn active">1</button>
+						<button class="pagination-btn">Siguiente</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- MODAL DETALLE DE PEDIDO -->
+			<div class="modal fade" id="modalDetallePedido" tabindex="-1"
+				aria-hidden="true">
+				<div class="modal-dialog modal-lg">
+
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title">Detalle del Pedido</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+						</div>
+
+						<div class="modal-body">
+							<div class="mb-3">
+								<strong>Cliente:</strong> <span id="det-cliente"></span><br>
+								<strong>Teléfono:</strong> <span id="det-telefono"></span><br>
+								<strong>Direccion:</strong> <span id="det-direccion"></span><br>
+								<strong>Notas:</strong> <span id="det-notas"></span><br>
+								<strong>Tipo:</strong> <span id="det-tipo"></span><br> <strong>Método
+									de Pago:</strong> <span id="det-pago"></span><br> <strong>Total:</strong>
+								S/ <span id="det-total"></span>
+							</div>
+
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Producto</th>
+										<th>Cantidad</th>
+										<th>Precio Unitario</th>
+										<th>Subtotal</th>
+									</tr>
+								</thead>
+								<tbody id="detalle-pedido-body">
+								</tbody>
+							</table>
+						</div>
+
+						<div class="modal-footer">
+							<button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="modal fade" id="modalEditarPedido" tabindex="-1"
+				aria-hidden="true">
+				<div class="modal-dialog modal-xl">
+					<!-- Más ancho -->
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title">Editar Pedido</h5>
+							<button type="button" class="btn-close"
+								data-bs-dismiss="modal"></button>
+						</div>
+
+						<div class="modal-body">
+							<form id="formEditarPedido">
+								<input type="hidden" id="edit-idPedido">
+
+								<!-- 📦 DATOS DEL CLIENTE -->
+								<div class="card mb-3 shadow-sm">
+									<div class="card-header bg-light fw-bold">Datos del
+										Cliente</div>
+									<div class="card-body">
+										<div class="row g-3">
+											<div class="col-md-4">
+												<label class="form-label">Cliente</label> <input type="text"
+													class="form-control form-control-sm" id="edit-nombrePedido">
+											</div>
+											<div class="col-md-4">
+												<label class="form-label">Teléfono</label> <input
+													type="text" class="form-control form-control-sm"
+													id="edit-telefonoPedido">
+											</div>
+											<div class="col-md-4">
+												<label class="form-label">Dirección</label> <input
+													type="text" class="form-control form-control-sm"
+													id="edit-direccionPedido">
+											</div>
+											<div class="col-md-12">
+												<label class="form-label">Notas</label>
+												<textarea class="form-control form-control-sm"
+													id="edit-notaPedido" rows="2"></textarea>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- ⚙️ DETALLES GENERALES -->
+								<div class="card mb-3 shadow-sm">
+									<div class="card-header bg-light fw-bold">Detalles del
+										Pedido</div>
+									<div class="card-body">
+										<div class="row g-3">
+											<div class="col-md-4">
+												<label class="form-label">Tipo de Pedido</label> <select
+													class="form-select form-select-sm" id="edit-tipoPedido">
+													<option value="delivery">delivery</option>
+													<option value="Para llevar">Para llevar</option>
+													<option value="comer-local">comer-local</option>
+												</select>
+											</div>
+											<div class="col-md-4">
+												<label class="form-label">Estado</label> <select
+													class="form-select form-select-sm" id="edit-estadoPedido">
+													<option value="Pendiente">Pendiente</option>
+													<option value="En Preparación">En Preparación</option>
+													<option value="Listo">Listo</option>
+													<option value="Entregado">Entregado</option>
+													<option value="Cancelado">Cancelado</option>
+												</select>
+											</div>
+											<div class="col-md-4">
+												<label class="form-label">Total</label> <input type="number"
+													class="form-control form-control-sm" id="edit-totalPedido"
+													step="0.01">
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- 🧾 TABLA DE DETALLES -->
+								<div class="card shadow-sm">
+									<div class="card-header bg-light fw-bold">Productos del
+										Pedido</div>
+									<div class="card-body">
+										<div class="table-responsive">
+											<table
+												class="table table-bordered table-sm align-middle text-center"
+												id="tabla-editar-detalle">
+												<thead class="table-light">
+													<tr>
+														<th>Producto</th>
+														<th>Cantidad</th>
+														<th>Precio Unitario</th>
+														<th>Subtotal</th>
+														<th>Acciones</th>
+													</tr>
+												</thead>
+												<tbody id="editar-detalle-body">
+													<!-- Llenado dinámico con JS -->
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+
+							</form>
+						</div>
+
+						<div class="modal-footer">
+							<button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+							<button class="btn btn-primary" onclick="guardarEdicion()">Guardar
+								Cambios</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.3/dist/sweetalert2.all.min.js"></script>
+
+	<script>
+
+const modalDetalle = new bootstrap.Modal(document.getElementById("modalDetallePedido"));
+
+function verDetallePedido(pedidoId) {
+	  fetch(`/pedidos/detalle-json/${pedidoId}`)
+	    .then(response => {
+	      if (!response.ok) throw new Error("No se pudo obtener el detalle del pedido");
+	      return response.json();
+	    })
+	    .then(data => {
+	    	console.log(data)
+	      // Asignar datos principales
+	      document.getElementById("det-cliente").textContent = data.nombrePedido;
+	      document.getElementById("det-telefono").textContent = data.telefonoPedido;
+	      document.getElementById("det-direccion").textContent = data.direccionPedido; 
+	      document.getElementById("det-notas").textContent = data.notasPedido; 
+	      document.getElementById("det-tipo").textContent = data.tipoPedido;
+	      document.getElementById("det-pago").textContent = data.metodoPagoPedido;
+	      document.getElementById("det-total").textContent = data.totalPedido;
+
+	      // Llenar la tabla de detalles
+	      const tbody = document.getElementById("detalle-pedido-body");
+	      tbody.innerHTML = "";
+	      
+	      data.detalles.forEach(det => {
+	        const fila = `
+	          <tr>
+	            <td>${det.producto.nombre}</td>
+	            <td>${det.cantidad}</td>
+	            <td>S/ ${det.precioUnitario}</td>
+	            <td>S/ ${det.subtotal}</td>
+	          </tr>`;
+	        tbody.insertAdjacentHTML("beforeend", fila);
+	      });
+
+
+	      modalDetalle.show();
+	    })
+	    .catch(error => {
+	      console.error(error);
+	      alert("Error al cargar el detalle del pedido");
+	    });
+	}
+
+
+
+const modalEditar = new bootstrap.Modal(document.getElementById("modalEditarPedido"));
+
+function editarPedido(id) {
+  fetch(`/pedidos/detalle-json/${id}`)
+    .then(res => res.json())
+    .then(data => {
+      // Campos principales
+      document.getElementById("edit-idPedido").value = data.idPedido;
+      document.getElementById("edit-nombrePedido").value = data.nombrePedido;
+      document.getElementById("edit-telefonoPedido").value = data.telefonoPedido;
+      document.getElementById("edit-direccionPedido").value = data.direccionPedido;
+      document.getElementById("edit-notaPedido").value = data.notasPedido;
+      document.getElementById("edit-totalPedido").value = data.totalPedido;
+
+      // Combos
+      document.getElementById("edit-tipoPedido").value = data.tipoPedido;
+      document.getElementById("edit-estadoPedido").value = data.estadoPedido || "Pendiente";
+
+      // Llenar tabla de detalles
+      const tbody = document.getElementById("editar-detalle-body");
+      tbody.innerHTML = "";
+
+      data.detalles.forEach((det, index) => {
+    	  const fila = `
+    	    <tr data-index="${index}" data-idproducto="${det.producto.id}">
+    	      <td>${det.producto.nombre}</td>
+    	      <td>${det.cantidad}</td>
+    	      <td>S/ ${det.precioUnitario}</td>
+    	      <td>S/ ${det.subtotal}</td>
+    	      <td>
+    	        <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${index})">Eliminar</button>
+    	      </td>
+    	    </tr>`;
+    	  tbody.insertAdjacentHTML("beforeend", fila);
+    	});
+
+      modalEditar.show();
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Error al cargar datos del pedido para edición");
+    });
+}
+
+
+	function eliminarProducto(index) {
+	  const tbody = document.getElementById("editar-detalle-body");
+	  const fila = tbody.querySelector(`tr[data-index='${index}']`);
+	  if (fila) fila.remove();
+	  recalcularTotal();
+	}
+
+	function recalcularTotal() {
+	  const tbody = document.getElementById("editar-detalle-body");
+	  let total = 0;
+	  tbody.querySelectorAll("tr").forEach(tr => {
+	    const subtotal = parseFloat(tr.children[3].textContent.replace("S/ ", ""));
+	    total += subtotal;
+	  });
+	  document.getElementById("edit-totalPedido").value = total.toFixed(2);
+	}
+
+	
+	function guardarEdicion() {
+		  const idPedido = document.getElementById("edit-idPedido").value;
+		  const nombrePedido = document.getElementById("edit-nombrePedido").value;
+		  const telefonoPedido = document.getElementById("edit-telefonoPedido").value;
+		  const direccionPedido = document.getElementById("edit-direccionPedido").value;
+		  const notasPedido = document.getElementById("edit-notaPedido").value;
+		  const tipoPedido = document.getElementById("edit-tipoPedido").value;
+		  const estadoPedido = document.getElementById("edit-estadoPedido").value;
+		  const totalPedido = parseFloat(document.getElementById("edit-totalPedido").value);
+
+		const detalles = [];
+		const filas = document.querySelectorAll("#editar-detalle-body tr");
+
+		filas.forEach(tr => {
+			  const productoId = parseInt(tr.dataset.idproducto);
+			  const producto = { id: productoId }; 
+		
+			  const cantidad = parseFloat(tr.children[1].textContent.trim());
+			  const precioUnitario = parseFloat(tr.children[2].textContent.replace("S/ ", "").trim());
+			  const subtotal = parseFloat(tr.children[3].textContent.replace("S/ ", "").trim());
+
+			  detalles.push({ producto, cantidad, precioUnitario, subtotal });
+		});
+
+		  const payload = {
+		    idPedido,
+		    nombrePedido,
+		    telefonoPedido,
+		    direccionPedido,
+		    notasPedido,
+		    tipoPedido,
+		    estadoPedido,
+		    totalPedido,
+		    detalles
+		  };
+
+		// SweetAlert confirmación antes de guardar
+		    Swal.fire({
+		        title: '¿Guardar cambios?',
+		        text: "Se actualizarán los datos del pedido",
+		        icon: 'question',
+		        showCancelButton: true,
+		        confirmButtonText: 'Sí, guardar',
+		        cancelButtonText: 'Cancelar'
+		    }).then(result => {
+		        if (result.isConfirmed) {
+		            fetch(`/pedidos/editar/${idPedido}`, {
+		                method: "POST",
+		                headers: { "Content-Type": "application/json" },
+		                body: JSON.stringify(payload)
+		            })
+		            .then(res => {
+		                if (!res.ok) throw new Error("Error al guardar los cambios");
+		                return res.json();
+		            })
+		            .then(data => {
+		                Swal.fire({
+		                    title: 'Actualizado',
+		                    text: 'El pedido se ha actualizado correctamente',
+		                    icon: 'success',
+		                    timer: 1500,
+		                    showConfirmButton: false
+		                }).then(() => {
+		                    modalEditar.hide();
+		                    location.reload(); // recarga después de la animación
+		                });
+		            })
+		            .catch(err => {
+		                console.error(err);
+		                Swal.fire('Error', 'No se pudo actualizar el pedido', 'error');
+		            });
+		        }
+		    });
+		}
+
+	function rechazarPedido(idPedido) {
+	    Swal.fire({
+	        title: '¿Rechazar pedido?',
+	        text: "El pedido cambiará a estado 'Rechazado' y no se podrá editar",
+	        icon: 'warning',
+	        showCancelButton: true,
+	        confirmButtonText: 'Sí, rechazar',
+	        cancelButtonText: 'Cancelar'
+	    }).then((result) => {
+	        if (result.isConfirmed) {
+	            fetch(`/pedidos/rechazar/${idPedido}`, {
+	                method: "POST"
+	            })
+	            .then(res => {
+	                if (!res.ok) throw new Error("No se pudo rechazar el pedido");
+
+	                Swal.fire({
+	                    title: 'Rechazado',
+	                    text: 'El pedido ha sido rechazado',
+	                    icon: 'success',
+	                    timer: 1500, // opcional: cierra solo después de 1.5s
+	                    showConfirmButton: false
+	                }).then(() => {
+	                    // Esto se ejecuta después de que termina la animación
+	                    location.reload();
+	                });
+	            })
+	            .catch(err => {
+	                console.error(err);
+	                Swal.fire('Error', 'No se pudo rechazar el pedido', 'error');
+	            });
+	        }
+	    });
+	}
+
+
+
+
+</script>
+
+</body>
+</html>

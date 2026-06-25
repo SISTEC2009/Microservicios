@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" >
+
+	<div th:replace="~{layout/base :: head}" ></div>
+
+<body>
+	<div th:replace="~{layout/base :: header}" ></div>
+	<div class="main-content">
+
+	<!-- Sección de Clientes -->
+		<div id="reservas">
+		    <h2 class="section-title">Lista de Reservas</h2>
+			<div class="filters">
+				<div class="filters-header">
+					<div class="filters-title">Filtros de búsqueda</div>
+					<div class="filters-toggle">[+ Ver más]</div>
+				</div>
+				<div class="filters-form">
+					<div class="filter-group">
+						<input type="text" class="solo-letras" id="reserva-nombre" placeholder="Nombre cliente">
+					</div>
+					<div class="filter-group">
+						<input type="text" class="solo-letras" id="reserva-local" placeholder="Local">
+					</div>
+					<div class="filter-group">
+						<input type="text" class="solo-numeros" id="reserva-estado" placeholder="Estado">
+					</div>
+				</div>
+			</div>
+
+			<div class="table-container">
+				<div class="table-header">
+					<div class="table-actions">
+						<button class="btn btn-secondary"
+							onclick="exportarTabla('reservas-tabla')">Exportar</button>
+						<button class="btn btn-secondary">Mostrar/Ocultar
+							columnas</button>
+					</div>
+				</div>
+
+				<table id="reservas-tabla" class="table table-striped">
+				    <thead>
+				      	<th>ID</th>
+				        <th>Nombre</th>
+				        <th>Telefono</th>
+				        <th>Correo</th>
+				        <th>Local</th>
+				        <th>Fecha</th>
+				        <th>Hora</th>
+				        <th>Personas</th>
+				        <th>Preferencia</th>
+				      </tr>
+				    </thead>
+				    <tbody>
+						<tr th:each="temp : ${lstReserva}">
+				    	  <td th:text="${temp.idReserva}"></td>
+					      <td th:text="${temp.nombreReserva}"></td>
+					      <td th:text="${temp.telefonoReserva}"></td>
+					      <td th:text="${temp.emailReserva}"></td>
+					      <td th:text="${temp.localReserva}"></td>
+					      <td th:text="${temp.fechaReserva}"></td>
+					      <td th:text="${temp.horaReserva}"></td>
+					      <td th:text="${temp.cantidadReserva}"></td>
+					      <td th:text="${temp.preferenciasReserva}"></td>
+	
+					      <td class="editar-eliminar-td"></td>
+					    </tr>
+				    </tbody>
+				  </table>
+
+				<div class="pagination">
+					<div class="pagination-info">Mostrando 2 de 2 </div>
+					<div class="pagination-controls">
+						<button class="pagination-btn">Anterior</button>
+						<button class="pagination-btn active">1</button>
+						<button class="pagination-btn">Siguiente</button>
+					</div>
+				</div>
+			</div>
+			
+			
+		</div>
+	</div>
+	
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.3/dist/sweetalert2.all.min.js"></script>
+	
+	<script>
+	function nuevoCliente() {
+		  console.log("Se ejecutó nuevoCliente()");
+		  limpiarFormulario();
+		  document.getElementById('cliente-modal-title').textContent = 'Nuevo Cliente';
+		  abrirModal();
+		}
+	function limpiarFormulario() {
+		  document.querySelectorAll('#cliente-modal input').forEach(i => i.value = '');
+		}
+	
+	function abrirModal() {
+		console.log("Se ejecutó abrirModal()");
+
+	  document.getElementById('cliente-modal').style.display = 'flex';
+	}
+	
+	function cerrarModal() {
+		  document.getElementById('cliente-modal').style.display = 'none';
+		}
+	
+	//Registrar cliente inicio
+	window.addEventListener('DOMContentLoaded', function() {
+			
+			  const mensaje = '[[${clienteExitoso}]]';
+			  if (mensaje && mensaje !== '') {
+			    Swal.fire({
+			      title: '¡Registrado!',
+			      text: mensaje,
+			      icon: 'success'
+			    });
+			  }
+			});
+	//Registrar cliente fin
+	
+	//editar cliente inicio
+	//editar cliente fin	
+	
+	
+		// Marca input con borde rojo y muestra mensaje
+		function marcarError(id, mensaje) {
+		  const input = document.getElementById(id);
+		  input.classList.add('input-error');
+		  showToast(`⚠️ ${mensaje}`, 'error');
+		  input.focus();
+		}
+		
+		
+		
+		//caracteres permitidos en los inputs
+		document.querySelectorAll('.solo-letras').forEach(el =>
+		  el.addEventListener('input', () => el.value = el.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ''))
+		);
+
+		document.querySelectorAll('.solo-numeros').forEach(el =>
+		  el.addEventListener('input', () => el.value = el.value.replace(/[^0-9]/g, ''))
+		);
+
+		document.querySelectorAll('.solo-direccion').forEach(el =>
+		  el.addEventListener('input', () => el.value = el.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s#.,-]/g, ''))
+		);
+
+		// Inicializar filtros de búsqueda
+		document.addEventListener('DOMContentLoaded', () => {
+		  const nombreInput = document.getElementById('reserva-nombre');
+		  const localInput = document.getElementById('reserva-local');
+		  const estadoInput = document.getElementById('reserva-estado');
+		  
+		  
+
+		  // Escuchar cambios en los filtros
+		  [nombreInput, localInput, estadoInput].forEach(input => {
+		    input.addEventListener('input', filtrarReservas);
+		  });
+		});
+
+		function filtrarReservas() {
+		  const nombre = document.getElementById('reserva-nombre').value.toLowerCase();
+		  const local = document.getElementById('reserva-local').value.toLowerCase();
+		  const estado = document.getElementById('reserva-estado').value.toLowerCase();
+
+		  const filas = document.querySelectorAll('#reservas-tabla tbody tr');
+
+		  filas.forEach(fila => {
+		    const nombreFila = fila.cells[1].textContent.toLowerCase();
+		    const localFila = fila.cells[4].textContent.toLowerCase();
+		    const estadoFila = fila.cells[7].textContent.toLowerCase();
+
+		    const coincideNombre = !nombre || nombreFila.includes(nombre);
+		    const coincideLocal = !local || documentoFila.includes(local);
+		    const coincideEstado = !estado || telefonoFila.includes(estado);
+
+		    fila.style.display = coincideNombre && coincideLocal && coincideEstado ? '' : 'none';
+		  });
+		}
+		
+	</script>
+	
+	
+</body>
+</html>

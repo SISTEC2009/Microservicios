@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservas - Chifa Wa Sheng</title>
+    <link rel="stylesheet" href="reserva.css">
+</head>
+<body>
+    <!-- Barra de navegación -->
+    <nav>
+        <div class="container nav-container">
+            <a href="#" class="logo">WA SHENG</a>
+            <div class="nav-menu">
+                <a href="/">Inicio</a>
+                <a href="/Pedido/pedido.html">Pedidos</a>
+                <a href="/Contacto/contacto.html">Contacto</a>
+            </div>
+            <div class="nav-button">
+                <button class="btn">Reservar Ahora</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main class="main-content">
+        <div class="container">
+            <h1 class="page-title">Reserva tu Mesa</h1>
+            <p class="page-subtitle">Completa el formulario a continuación para reservar tu mesa en Chifa Wa Sheng. Te enviaremos una confirmación por correo electrónico.</p>
+
+            <!-- Tarjeta de reserva -->
+            <div class="reservation-card">
+                <form>
+                    <!-- Nombre y teléfono -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nombre">Nombre completo</label>
+                            <input type="text" id="nombre" placeholder="Ingresa tu nombre completo" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="telefono">Número de teléfono</label>
+                            <input type="tel" id="telefono" placeholder="Ingresa tu número de teléfono" required>
+                        </div>
+                    </div>
+
+                    <!-- Correo electrónico -->
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="email">Correo electrónico (opcional)</label>
+                        <input type="email" id="email" placeholder="Ingresa tu correo electrónico">
+                    </div>
+
+                    <!-- Lugar del restaurante -->
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="lugar">Lugar del Restaurante</label>
+                        <select id="lugar" required>
+                            <option value="" disabled selected>Selecciona una sede</option>
+                            <option value="san-isidro">San Isidro</option>
+                            <option value="miraflores">Miraflores</option>
+                        </select>
+                    </div>
+
+                    <!-- Fecha, hora y número de personas -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fecha">Fecha</label>
+                            <input type="date" id="fecha" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="hora">Hora</label>
+                            <input type="time" id="hora" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="personas">Número de personas</label>
+                            <select id="personas" required>
+                                <option value="" disabled selected>Selecciona</option>
+                                <option value="1">1 persona</option>
+                                <option value="2">2 personas</option>
+                                <option value="3">3 personas</option>
+                                <option value="4">4 personas</option>
+                                <option value="5">5 personas</option>
+                                <option value="6">6 personas</option>
+                                <option value="7">7 personas</option>
+                                <option value="8">8 personas</option>
+                                <option value="9">9 personas</option>
+                                <option value="10">10 personas</option>
+                                <option value="mas">Más de 10 personas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Preferencias -->
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="preferencias">Preferencias (opcional)</label>
+                        <textarea id="preferencias" placeholder="Ej: Mesa cerca de la ventana, silla para bebé, etc."></textarea>
+                    </div>
+
+                    <!-- Botón de confirmación -->
+                    <button type="submit" class="btn submit-btn">Confirmar Reserva</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+     <!-- Footer (Pie de Página) -->
+     <footer id="contacto">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3 class="footer-title">WA SHENG</h3>
+                <div class="footer-content">
+                    <p>Fusión perfecta de sabores chinos y<br> peruanos en cada plato.</p>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Síguenos</h3>
+                <div class="social-icons">
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-facebook-f"></i> Facebook
+                    </a>
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-instagram"></i> Instagram
+                    </a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Enlaces</h3>
+                <div class="footer-links">
+                    <a href="#">Política de Privacidad</a>
+                    <a href="#">Términos y Condiciones</a>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2023 WA SHENG. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+</body>
+</html>

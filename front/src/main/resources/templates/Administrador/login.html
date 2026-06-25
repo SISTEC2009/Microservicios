@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio de Sesion</title>
+    <link rel="stylesheet" href="/css/reserva.css">
+</head>
+<body>
+<nav>
+    <div class="container nav-container">
+        <img src="/imagenes/icono.jpg" alt="logo web" width="60" height="60">
+        <div class="nav-menu">
+            <a href="/">Inicio</a>
+        </div>
+    </div>
+</nav>
+
+<main class="main-content">
+    <div class="container">
+        <h1 class="page-title">Ingreso al Sistema</h1>
+
+        <div th:if="${error}" style="background:#f8d7da; color:#842029; padding:10px; border-radius:6px; margin-bottom:15px;">
+            <span th:text="${error}">Error</span>
+        </div>
+
+        <div class="reservation-card">
+            <form th:action="@{/menus/login}" method="post">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="txtUser">Usuario</label>
+                    <input type="text" id="txtUser" name="username" placeholder="Ingresa tu Usuario" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="txtPass">Contraseña</label>
+                    <input type="password" id="txtPass" name="password" placeholder="Ingresa tu contraseña" required>
+                </div>
+
+                <button type="submit" class="btn submit-btn">Iniciar Sesion</button>
+            </form>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

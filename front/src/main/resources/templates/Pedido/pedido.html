@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos - Chifa WHA SHENG</title>
+    <link rel="stylesheet" href="/css/pedido.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.3/dist/sweetalert2.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Barra de navegación -->
+    <nav>
+        <div class="container nav-container">
+            <a href="#" class="logo">WHA SHENG</a>
+            <div class="nav-menu">
+                <a href="/">Inicio</a>
+                <a href="/reservas/listar">Reservas</a>
+                <a href="/Contacto/contacto.html">Contacto</a>
+            </div>
+            <div class="nav-right">
+                
+                <button class="btn">Ingresar</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main class="main-content">
+        <div class="container">
+            <h1 class="page-title">Realiza tu Pedido</h1>
+            <p class="page-subtitle">Selecciona los platos que deseas ordenar y completa la información para realizar tu pedido.</p>
+
+            <!-- Sección de pedidos -->
+            <div class="order-section">
+                <!-- Sección del menú -->
+                <div class="menu-section">
+                    <!-- Categorías del menú -->
+                    <div class="menu-categories">
+   	 					<div th:each="cat, iterStat : ${categorias}"
+         					class="category-tab"
+         					th:attr="data-category=${cat.nombre.toLowerCase()}"
+         					th:text="${cat.nombre}"
+         					th:classappend="${iterStat.index == 0} ? ' active' : ''">
+    					</div>
+					</div>
+
+<div class="menu-content">
+    <div th:each="cat, iterStat : ${categorias}"
+         class="menu-category"
+         th:attr="id=${#strings.replace(cat.nombre.toLowerCase(), ' ', '-')}"
+         th:style="${iterStat.index == 0} ? 'display:block;' : 'display:none;'">
+
+        <div class="menu-products">
+            <div th:each="producto : ${productos}"
+                 th:if="${producto.categoria.id == cat.id}"
+                 class="product-card">
+
+                <h3 class="product-title" th:text="${producto.nombre}"></h3>
+                <p class="product-description" th:text="${producto.descripcion}"></p>
+                <div class="product-price" th:text="'S/ ' + ${producto.precio}"></div>
+
+                <button class="btn add-btn"
+                        th:attr="data-name=${producto.nombre}, data-price=${producto.precio}, data-productoId=${producto.id}">
+                    Agregar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+                </div>
+
+                <!-- Sección del carrito -->
+                <div class="cart-section">
+                    <div class="cart-container">
+                        <div class="cart-title">
+                            <div class="cart-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="9" cy="21" r="1"></circle>
+                                    <circle cx="20" cy="21" r="1"></circle>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                </svg>
+                            </div>
+                            Tu Pedido
+                        </div>
+
+                        <!-- Carrito vacío -->
+                        <div class="cart-empty">
+                            Tu carrito está vacío
+                        </div>
+
+                        <!-- Elementos del carrito -->
+                        <div class="cart-items" style="display: none;">
+                            <!-- Los items se agregarán dinámicamente -->
+                        </div>
+
+                        <!-- Total del carrito -->
+                        <div class="cart-total" style="display: none;">
+                            <span>Total:</span>
+                            <span id="cart-total-amount">S/ 0.00</span>
+                            <span id="cart-cantidad" style="display: none;">0</span>
+                        </div>                                             
+                        
+                        <!-- Formulario de pedido -->
+                        <form id="formPedido" th:action="@{/pedidos/confirmar}" method="post" th:object="${newPedido}">
+                        <input th:field="*{totalPedido}" type="hidden" id="totalPedido" name="totalPedido" value="0">
+
+ <!--                       <form th:action="@{/pedidos/confirmar}" method="post" th:object="${newPedido}"> -->
+                        <input th:field="*{cantidadPedido}" type="hidden" id="cantidadPedido" name="cantidadPedido" value="0">
+                         
+                             <!-- 👇 Mueve este aquí dentro del form -->
+    					<input type="hidden" id="detallesJson" name="detallesJson">
+    					
+                        <div class="order-form">
+                            <div class="form-group">
+                                <label for="nombre">Nombre completo</label>
+								<input th:field="*{nombrePedido}" type="text" class="solo-letras" id="nombre" name="nombrePedido" placeholder="Ingresa tu nombre completo" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="telefono">Número de teléfono</label>
+								<input th:field="*{telefonoPedido}" type="tel" class="solo-numeros" id="telefono" name="telefonoPedido" placeholder="Ingresa tu número de teléfono" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Tipo de pedido</label>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+										<input type="radio" th:field="*{tipoPedido}" id="delivery" name="tipoPedido" value="delivery" checked>
+                                        <label for="delivery">Delivery</label>
+                                    </div>
+                                    <div class="radio-option">
+										<input type="radio" id="para-llevar" name="tipoPedido" value="para-llevar">
+                                        <label for="para-llevar">Para llevar</label>
+                                    </div>
+                                    <div class="radio-option">
+										<input type="radio" id="comer-local" name="tipoPedido" value="comer-local">
+                                        <label for="comer-local">Comer en local</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="direccion">Dirección de entrega</label>
+								<input th:field="*{direccionPedido}" type="text" class="solo-direccion" id="direccion" name="direccionPedido" placeholder="Ingresa tu dirección completa">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="notas">Notas adicionales (opcional)</label>
+								<textarea th:field="*{notasPedido}" id="notas" name="notasPedido" placeholder="Instrucciones especiales para tu pedido"></textarea>
+                            </div>
+
+                            <!-- Sección de métodos de pago -->
+                            <div class="payment-section">
+                                <div class="payment-title">Método de pago</div>
+                                <div class="payment-methods">
+                                    <div class="payment-method active">
+										<input th:field="*{metodoPagoPedido}" type="radio" id="efectivo" name="metodoPagoPedido" value="efectivo" checked>
+                                        <label for="efectivo">Efectivo</label>
+                                    </div>
+                                    <div class="payment-method">
+										<input type="radio" id="tarjeta" name="metodoPagoPedido" value="tarjeta">
+                                        <label for="tarjeta">Tarjeta</label>
+                                    </div>
+                                    <div class="payment-method">
+										<input type="radio" id="yape" name="metodoPagoPedido" value="yape">
+                                        <label for="yape">Yape</label>
+                                    </div>
+                                    <div class="payment-method">
+										<input type="radio" id="plin" name="metodoPagoPedido" value="plin">
+                                        <label for="plin">Plin</label>
+                                    </div>
+                                </div>
+                                <!-- Iconos de tarjetas -->
+                                <div class="card-icons" style="display: none;">
+                                    <div class="card-icon">VISA</div>
+                                    <div class="card-icon">MC</div>
+                                    <div class="card-icon">AMEX</div>
+                                    <div class="card-icon">DINER</div>
+                                </div>
+                            </div>
+<!--                            <button type="submit" class="btn submit-btn">Confirmar Pedido</button> -->
+                            <div th:if="${session.usuarioLogueado != null and session.rolUsuario == 'CLIENTE'}">
+                                <button type="submit" class="btn submit-btn">
+                                    Confirmar Reserva
+                                </button>
+                            </div>
+
+                            <div th:unless="${session.usuarioLogueado != null and session.rolUsuario == 'CLIENTE'}">
+                                <a th:href="@{/Auth/login}" class="btn submit-btn">
+                                    Iniciar sesión para comprar
+                                </a>
+                            </div>
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+<!-- Footer (Pie de Página) -->
+<footer id="contacto">
+    <div class="footer-container">
+        <div class="footer-section">
+            <h3 class="footer-title">WHA SHENG</h3>
+            <div class="footer-content">
+                <p>Fusión perfecta de sabores chinos y <br>
+                     peruanos en cada plato.</p>
+            </div>
+        </div>
+        <div class="footer-section">
+            <h3 class="footer-title">Síguenos</h3>
+            <div class="social-icons">
+                <a href="#" class="social-icon">
+                    <i class="fab fa-facebook-f"></i> Facebook
+                </a>
+                <a href="#" class="social-icon">
+                    <i class="fab fa-instagram"></i> Instagram
+                </a>
+            </div>
+        </div>
+        <div class="footer-section">
+            <h3 class="footer-title">Enlaces</h3>
+            <div class="footer-links">
+                <a href="#">Política de Privacidad</a>
+                <a href="#">Términos y Condiciones</a>
+            </div>
+        </div>
+    </div>
+    <div class="copyright">
+        <p>&copy; 2025 SISTEC PERU Todos los derechos reservados.</p>
+    </div>
+</footer>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Seleccionar elementos
+        const categoryTabs = document.querySelectorAll('.category-tab');
+        const menuCategories = document.querySelectorAll('.menu-category');
+        const addButtons = document.querySelectorAll('.add-btn');
+        const cartEmpty = document.querySelector('.cart-empty');
+        const cartItems = document.querySelector('.cart-items');
+        const cartTotal = document.querySelector('.cart-total');
+        const cartTotalAmount = document.getElementById('cart-total-amount');
+        const paymentMethods = document.querySelectorAll('.payment-method');
+        const cardIcons = document.querySelector('.card-icons');
+        
+        // Cambiar categorías
+        categoryTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Quitar clase activa de todas las pestañas
+                categoryTabs.forEach(t => t.classList.remove('active'));
+                // Agregar clase activa a la pestaña seleccionada
+                this.classList.add('active');
+                
+                // Ocultar todas las categorías
+                menuCategories.forEach(cat => cat.classList.remove('active'));
+                
+                // Mostrar la categoría seleccionada
+                const categoryId = this.getAttribute('data-category');
+                document.getElementById(categoryId).classList.add('active');
+            });
+        });
+        
+        // Carrito de compras
+        let cart = [];
+        
+        // Función para actualizar el carrito
+        function updateCart() {
+            // Limpiar el carrito
+            cartItems.innerHTML = '';
+            
+            // Si el carrito está vacío
+            if (cart.length === 0) {
+                cartEmpty.style.display = 'block';
+                cartItems.style.display = 'none';
+                cartTotal.style.display = 'none';
+                return;
+            }
+            
+            // Mostrar elementos del carrito
+            cartEmpty.style.display = 'none';
+            cartItems.style.display = 'block';
+            cartTotal.style.display = 'flex';
+            
+            // Calcular total
+            let total = 0;
+            
+            // Agregar cada item al carrito
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                
+                const itemElement = document.createElement('div');
+                itemElement.className = 'cart-item';
+                itemElement.innerHTML = `
+                    <div class="item-details">
+                        <div class="item-title">${item.name}</div>
+                        <div class="item-price">S/ ${item.price.toFixed(2)}</div>
+                    </div>
+                    <div class="item-quantity">
+                        <button class="quantity-btn decrease" data-index="${index}">-</button>
+                        <span>${item.quantity}</span>
+                        <button class="quantity-btn increase" data-index="${index}">+</button>
+                    </div>
+                    <button class="remove-btn" data-index="${index}">×</button>
+                `;
+                cartItems.appendChild(itemElement);
+            });
+            
+            // Actualizar total
+            cartTotalAmount.textContent = `S/ ${total.toFixed(2)}`;
+           
+    		// Actualizar total del carrito en el campo oculto
+    		document.getElementById('totalPedido').value = total.toFixed(2);
+            
+            const cantidadTotal = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cantidadPedido').value = cantidadTotal;
+
+            
+            // Agregar eventos a los botones de cantidad y eliminar
+            document.querySelectorAll('.decrease').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    if (cart[index].quantity > 1) {
+                        cart[index].quantity--;
+                        updateCart();
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.increase').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    cart[index].quantity++;
+                    updateCart();
+                });
+            });
+            
+            document.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    cart.splice(index, 1);
+                    updateCart();
+                });
+            });
+        }
+        
+        // Agregar productos al carrito
+        addButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const name = this.getAttribute('data-name');
+                const price = parseFloat(this.getAttribute('data-price'));
+                const productId = parseFloat(this.getAttribute('data-productoId'));
+                
+                // Verificar si el producto ya está en el carrito
+                const existingItem = cart.find(item => item.name === name);
+                
+                if (existingItem) {
+                    existingItem.quantity++;
+                } else {
+                    cart.push({
+                    	id: productId,          // este debe ser el mismo id que tiene en la BD
+                        name: name,
+                        price: price,
+                        quantity: 1
+                    });
+                }
+                
+                updateCart();
+            });
+        });
+        
+        // Cambiar método de pago
+        paymentMethods.forEach(method => {
+            method.addEventListener('click', function() {
+                // Quitar clase activa de todos los métodos
+                paymentMethods.forEach(m => m.classList.remove('active'));
+                // Agregar clase activa al método seleccionado
+                this.classList.add('active');
+                
+                // Mostrar iconos de tarjetas si se selecciona tarjeta
+                if (this.querySelector('#tarjeta')) {
+                    cardIcons.style.display = 'flex';
+                } else {
+                    cardIcons.style.display = 'none';
+                }
+                
+                // Marcar el radio button
+                this.querySelector('input').checked = true;
+            });
+        });
+    	
+    	// === VALIDACIÓN DE CAMPOS DE TEXTO ===
+    	document.querySelectorAll('.solo-letras').forEach(input => {
+    	  input.addEventListener('input', () => {
+    		input.value = input.value.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // elimina emojis o acentos fuera de rango
+
+    	    input.value = input.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+    	  });
+    	});
+
+    	document.querySelectorAll('.solo-numeros').forEach(input => {
+    	  input.addEventListener('input', () => {
+    	    input.value = input.value.replace(/[^0-9]/g, '');
+    	  });
+    	});
+
+    	document.querySelectorAll('.solo-direccion').forEach(input => {
+    	  input.addEventListener('input', () => {
+    	    input.value = input.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s#.,-]/g, '');
+    	  });
+    	});
+
+    	
+    	const tabs = document.querySelectorAll(".category-tab");
+        const categories = document.querySelectorAll(".menu-category");
+
+        tabs.forEach(tab => {
+            tab.addEventListener("click", () => {
+                // Quitar el estado activo
+                tabs.forEach(t => t.classList.remove("active"));
+                tab.classList.add("active");
+
+                const selected = tab.getAttribute("data-category");
+
+                categories.forEach(cat => {
+                    if (cat.id === selected) {
+                        cat.style.display = "block";
+                        cat.style.opacity = 0;
+                        setTimeout(() => cat.style.opacity = 1, 100);
+                    } else {
+                        cat.style.display = "none";
+                    }
+                });
+            });
+        });
+        
+     // === CAPTURAR Y ENVIAR DETALLES DEL CARRITO ===
+        const form = document.querySelector('form[th\\:action="@{/pedidos/confirmar}"]')
+          || document.querySelector('form[action$="/pedidos/confirmar"]');
+
+        if (form) {
+          form.addEventListener('submit', function (event) {
+            if (cart.length === 0) {
+              event.preventDefault();
+              Swal.fire({
+                title: "Carrito vacío",
+                text: "Agrega al menos un producto antes de confirmar el pedido.",
+                icon: "warning",
+                confirmButtonText: "Entendido"
+              });
+              return;
+            }
+
+            // Crear JSON de los detalles
+            const detalles = cart.map(item => ({
+    		producto: { id: item.id }, // <-- usa el mismo nombre que en tu entidad Producto
+    		cantidad: item.quantity,
+    		precioUnitario: item.price,
+    		subtotal: item.price * item.quantity
+  			}));
+
+            // Insertar en el campo oculto
+            document.getElementById('detallesJson').value = JSON.stringify(detalles);
+
+            console.log("✅ Detalles listos para enviar:", document.getElementById('detallesJson').value);
+          });
+        }
+
+
+    });
+    </script>
+    <script>
+			document.addEventListener('DOMContentLoaded',function(){
+				
+				// INICIO DEL MENSAJE DE GUARDADO
+				const pedidoExitoso = '[[${pedidoExitoso}]]';
+				
+				if(pedidoExitoso && pedidoExitoso.trim().length > 0 ){
+					Swal.fire({
+						  title: "¡Operación Exitosa!",
+						  text: pedidoExitoso,
+						  icon: "success",
+						  showConfirmButton:false,
+						  timer:2000
+					});
+				}
+				// FIN DEL MENSAJE DE GUARDADO
+
+			});
+		
+		
+	
+		</script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.3/dist/sweetalert2.all.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" >
+
+	<div th:replace="~{layout/base :: head}" ></div>
+<link rel="stylesheet" href="/css/modal.css">
+<body>
+	<div th:replace="~{layout/base :: header}" ></div>
+	<div class="main-content">
+
+	<!-- Sección de Clientes -->
+		<div id="clientes">
+		    <h2 class="section-title">Gestión de Clientes</h2>
+			<div class="filters">
+				<div class="filters-header">
+					<div class="filters-title">Filtros de búsqueda</div>
+					<div class="filters-toggle">[+ Ver más]</div>
+				</div>
+				<div class="filters-form">
+					<div class="filter-group">
+						<input type="text" class="solo-letras" id="cliente-nombre"
+							placeholder="Nombre o razón social">
+					</div>
+					<div class="filter-group">
+						<input type="text" class="solo-numeros" id="cliente-documento" placeholder="RUC/DNI">
+					</div>
+					<div class="filter-group">
+						<input type="text" class="solo-numeros" id="cliente-telefono" placeholder="Teléfono">
+					</div>
+				</div>
+			</div>
+
+			<div class="table-container">
+				<div class="table-header">
+					<div class="acciones">
+						<button class="btn btn-primary" onclick="nuevoCliente()">
+							Nuevo Cliente</button>
+					</div>
+					<div class="table-actions">
+						<button class="btn btn-secondary"
+							onclick="exportarTabla('clientes-tabla')">Exportar</button>
+						<button class="btn btn-secondary">Mostrar/Ocultar
+							columnas</button>
+					</div>
+				</div>
+
+				<table id="clientes-tabla" class="styled-table">
+				    <thead>
+				      <tr>
+				      	<th>ID</th>
+				        <th>Nombre</th>
+				        <th>DNI/RUC</th>
+				        <th>Teléfono</th>
+				        <th>Correo</th>
+				        <th>Dirección</th>
+				        <th>Acciones</th>
+				      </tr>
+				    </thead>
+				    <tbody>
+				    <tr th:each="temp : ${clientes}">
+				    <td th:text="${temp.id}"></td>
+				      <td th:text="${temp.nombre}"></td>
+				      <td th:text="${temp.dni_ruc}"></td>
+				      <td th:text="${temp.telefono}"></td>
+				      <td th:text="${temp.email}"></td>
+				      <td th:text="${temp.direccion}"></td>
+				      <td class="editar-eliminar-td">
+		        <button class="action-btn" onclick="abrirEditarCliente(this)">			  
+		        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">			                                             
+			    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+			     </svg>
+			                                          </button>
+			<form th:action="@{/clientes/eliminar/{id}(id=${temp.id})}" method="post">
+		          <button type="button" class="action-btn eliminar-btn">												  
+			        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+					 <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+					<path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+				</svg>
+				</button>
+		        </form>
+		      </td>
+				    </tr>
+				    </tbody>
+				  </table>
+
+				<div class="pagination">
+					<div class="pagination-info">Mostrando 2 de 2 clientes</div>
+					<div class="pagination-controls">
+						<button class="pagination-btn">Anterior</button>
+						<button class="pagination-btn active">1</button>
+						<button class="pagination-btn">Siguiente</button>
+					</div>
+				</div>
+			</div>
+			
+			<form th:action="@{/clientes/guardar}" method="post" th:object="${newCliente}">
+			
+			<div id="cliente-modal" class="modal">
+			  <div class="modal-content">
+			    <h3 id="cliente-modal-title">Nuevo Cliente</h3>
+			    <input th:field="*{id}" type="hidden" id="cliente-id">
+			
+			    <label>Nombre:</label>
+			    <input th:field="*{nombre}" type="text" class="solo-letras" id="cliente-nombre-input" required>
+			
+			    <label>(DNI / RUC):</label>
+			    <input th:field="*{dni_ruc}" type="text" class="solo-numeros" id="cliente-documento-input" required>
+			
+			    <label>Teléfono:</label>
+			    <input th:field="*{telefono}" type="text" class="solo-numeros" id="cliente-telefono-input" required>
+			
+			    <label>Correo:</label>
+			    <input th:field="*{email}" type="email" id="cliente-correo-input" required>
+			
+			    <label>Dirección:</label>
+			    <input th:field="*{direccion}" type="text" class="solo-direccion" id="cliente-direccion-input">
+			
+			    <div class="modal-actions">
+			      <button class="btn-g1 btn-success-btn-g1">Guardar</button>			      
+			      <a th:href="@{/clientes/listar}" class="btn-g1 btn-light-btn-g1">Cancelar</a>
+			    </div>
+			  </div>
+			</div>
+			</form>
+			
+		</div>
+			</div>
+	
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.3/dist/sweetalert2.all.min.js"></script>
+	
+	<script>
+	function nuevoCliente() {
+		  console.log("Se ejecutó nuevoCliente()");
+		  limpiarFormulario();
+		  document.getElementById('cliente-modal-title').textContent = 'Nuevo Cliente';
+		  abrirModal();
+		}
+	function limpiarFormulario() {
+		  document.querySelectorAll('#cliente-modal input').forEach(i => i.value = '');
+		}
+	
+	function abrirModal() {
+		console.log("Se ejecutó abrirModal()");
+
+	  document.getElementById('cliente-modal').style.display = 'flex';
+	}
+	
+	function cerrarModal() {
+		  document.getElementById('cliente-modal').style.display = 'none';
+		}
+	
+	//Registrar cliente inicio
+	window.addEventListener('DOMContentLoaded', function() {
+			
+			  const mensaje = '[[${clienteExitoso}]]';
+			  if (mensaje && mensaje !== '') {
+			    Swal.fire({
+			      title: '¡Registrado!',
+			      text: mensaje,
+			      icon: 'success'
+			    });
+			  }
+			});
+	//Registrar cliente fin
+	
+	//editar cliente inicio
+	function abrirEditarCliente(boton) {
+		// Obtener la fila (tr) donde está el botón
+		  const fila = boton.closest("tr");
+
+		  // Obtener todas las celdas (td)
+		  const celdas = fila.getElementsByTagName("td");
+
+		  // Extraer los valores (texto dentro de las celdas)
+		  const id = celdas[0].textContent;
+		  const nombre = celdas[1].textContent;
+		  const dni = celdas[2].textContent;
+		  const telefono = celdas[3].textContent;
+		  const email = celdas[4].textContent;
+		  const direccion = celdas[5].textContent;
+
+
+		  // Ejemplo: llenar los campos del modal con esos valores
+		  document.getElementById('cliente-id').value = id;
+		  document.getElementById('cliente-nombre-input').value = nombre;
+		  document.getElementById('cliente-documento-input').value = dni || '';
+		  document.getElementById('cliente-telefono-input').value = telefono || '';
+		  document.getElementById('cliente-correo-input').value = email || '';
+		  document.getElementById('cliente-direccion-input').value = direccion || '';
+
+		  document.getElementById('cliente-modal-title').textContent = 'Editar Cliente';
+		  abrirModal();
+		}
+		
+		window.addEventListener('DOMContentLoaded', function() {
+			
+			  const mensaje = '[[${clienteExitosoEditado}]]';
+			  if (mensaje && mensaje !== '') {
+			    Swal.fire({
+			      title: '¡Editado!',
+			      text: mensaje,
+			      icon: 'success'
+			    });
+			  }
+			});
+	
+	//editar cliente fin	
+	
+	
+	//eliminar cliente inicio
+		document.querySelectorAll('.eliminar-btn').forEach(btn => {
+			  btn.addEventListener('click', function(e) {
+			    const form = btn.closest('form');
+			    Swal.fire({
+			      title: '¿Deseas eliminar este cliente?',
+			      icon: 'warning',
+			      showCancelButton: true,
+			      confirmButtonText: 'Sí, eliminar',
+			      cancelButtonText: 'Cancelar'
+			    }).then((result) => {
+			      if (result.isConfirmed) {
+			        form.submit();
+			      }
+			    });
+			  });
+			});
+
+			window.addEventListener('DOMContentLoaded', function() {
+	
+			  const mensaje = '[[${clienteEliminado}]]';
+			  if (mensaje && mensaje !== '') {
+			    Swal.fire({
+			      title: '¡Eliminado!',
+			      text: mensaje,
+			      icon: 'success'
+			    });
+			  }
+			});
+		//eliminar cliente fin
+			
+		
+		
+		
+		// Marca input con borde rojo y muestra mensaje
+		function marcarError(id, mensaje) {
+		  const input = document.getElementById(id);
+		  input.classList.add('input-error');
+		  showToast(`⚠️ ${mensaje}`, 'error');
+		  input.focus();
+		}
+		
+		
+		
+		//caracteres permitidos en los inputs
+		document.querySelectorAll('.solo-letras').forEach(el =>
+		  el.addEventListener('input', () => el.value = el.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ''))
+		);
+
+		document.querySelectorAll('.solo-numeros').forEach(el =>
+		  el.addEventListener('input', () => el.value = el.value.replace(/[^0-9]/g, ''))
+		);
+
+		document.querySelectorAll('.solo-direccion').forEach(el =>
+		  el.addEventListener('input', () => el.value = el.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s#.,-]/g, ''))
+		);
+
+		// Inicializar filtros de búsqueda
+		document.addEventListener('DOMContentLoaded', () => {
+		  const nombreInput = document.getElementById('cliente-nombre');
+		  const documentoInput = document.getElementById('cliente-documento');
+		  const telefonoInput = document.getElementById('cliente-telefono');
+		  
+		  
+
+		  // Escuchar cambios en los filtros
+		  [nombreInput, documentoInput, telefonoInput].forEach(input => {
+		    input.addEventListener('input', filtrarClientes);
+		  });
+		});
+
+		function filtrarClientes() {
+		  const nombre = document.getElementById('cliente-nombre').value.toLowerCase();
+		  const documento = document.getElementById('cliente-documento').value.toLowerCase();
+		  const telefono = document.getElementById('cliente-telefono').value.toLowerCase();
+
+		  const filas = document.querySelectorAll('#clientes-tabla tbody tr');
+
+		  filas.forEach(fila => {
+		    const nombreFila = fila.cells[1].textContent.toLowerCase();
+		    const documentoFila = fila.cells[2].textContent.toLowerCase();
+		    const telefonoFila = fila.cells[3].textContent.toLowerCase();
+
+		    const coincideNombre = !nombre || nombreFila.includes(nombre);
+		    const coincideDocumento = !documento || documentoFila.includes(documento);
+		    const coincideTelefono = !telefono || telefonoFila.includes(telefono);
+
+		    fila.style.display = coincideNombre && coincideDocumento && coincideTelefono ? '' : 'none';
+		  });
+		}
+		
+	</script>
+	
+	
+</body>
+</html>

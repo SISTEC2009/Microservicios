@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+	<div th:replace="~{layout/base :: head}" ></div>
+<link rel="stylesheet" href="/css/modal.css">
+<body>
+<div th:replace="~{layout/base :: header}"></div>
+
+<div class="main-content">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Gestión de Categorías</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#categoriaModal">
+            <i class="bi bi-plus-circle"></i> Nueva Categoría
+        </button>
+    </div>
+
+    <!-- 🔔 Mensajes de éxito o error (AGREGADO AQUÍ) -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show mt-2" role="alert">
+        <i class="bi bi-check-circle-fill"></i>
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <!-- 🔔 Fin de mensajes -->
+
+    <!-- Tabla de Categorías -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="cat : ${categorias}">
+                        <td th:text="${cat.id}"></td>
+                        <td th:text="${cat.nombre}"></td>
+                        <td th:text="${cat.descripcion}"></td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-warning btn-sm me-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#categoriaModal"
+                                    th:attr="data-id=${cat.id},data-nombre=${cat.nombre},data-descripcion=${cat.descripcion}">
+                                <i class="bi bi-pencil-square"></i> Editar
+                            </button>
+                            <a th:href="@{'/Administrador/categoria/eliminar/' + ${cat.id}}" 
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('¿Seguro que deseas eliminar esta categoría?')">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Crear/Editar Categoría -->
+<div class="modal fade" id="categoriaModal" tabindex="-1" aria-labelledby="categoriaModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form th:action="@{/Administrador/categoria/guardar}" method="post" th:object="${categoria}">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="categoriaModalLabel">Nueva Categoría</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" th:field="*{id}" id="categoriaId">
+
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre:</label>
+                <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
+            </div>
+            <div class="mb-3">
+                <label for="descripcion" class="form-label">Descripción:</label>
+                <input type="text" class="form-control" id="descripcion" th:field="*{descripcion}">
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS + Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Script para cargar datos en el modal al editar -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('categoriaModal');
+    modal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+
+        const id = button.getAttribute('data-id');
+        const nombre = button.getAttribute('data-nombre');
+        const descripcion = button.getAttribute('data-descripcion');
+
+        const modalTitle = modal.querySelector('.modal-title');
+        const inputId = modal.querySelector('#categoriaId');
+        const inputNombre = modal.querySelector('#nombre');
+        const inputDescripcion = modal.querySelector('#descripcion');
+
+        if (id) {
+            modalTitle.textContent = 'Editar Categoría';
+            inputId.value = id;
+            inputNombre.value = nombre;
+            inputDescripcion.value = descripcion;
+        } else {
+            modalTitle.textContent = 'Nueva Categoría';
+            inputId.value = '';
+            inputNombre.value = '';
+            inputDescripcion.value = '';
+        }
+    });
+});
+</script>
+
+</body>
+</html>
